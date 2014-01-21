@@ -1,5 +1,5 @@
 import java.util.*;
-import easyIO.*;
+//import easyIO.*;
 import java.util.concurrent.*;
 
 /** Viser at manglende synkronisering gir synkronisering'*/
@@ -28,9 +28,9 @@ public class Parallell{
     void utskrift(double tid) {
        svar = antGanger*antTraader;
        System.out.println("Tid "+antGanger+" kall * "+ antTraader+" Traader ="+
-                            Format.align(tid,9,1)+ " millisek,");
+                            tid+ " millisek,");
          System.out.println(" sum:"+ tall +", tap:"+ (svar -tall)+" = "+
-           Format.align( ((svar - tall)*100.0 /svar),12,6)+"%");
+           ( (svar - tall)*100.0 /svar)+"%");
 
      } // end utskrift
 
