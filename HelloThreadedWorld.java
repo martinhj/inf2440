@@ -1,4 +1,5 @@
 // wait må alltid være tilknyttet synchronized
+/* int antKjerner = Runtime.getRuntime().availableProcessors(); */
  /*
   * SYNCHRONZIED(THIS) {
   *    try catch
@@ -13,7 +14,28 @@
  * Each thread must have a local variable 'ind' (only accessible for the current
  * thread).
  */
-class HelloThreadedWorld implements Runnable{
+class HelloThreadedWorld {
+public int quantityCores = Runtime.getRuntime().availableProcessors();
+
+/**
+ * This programs main method (starts here.)
+ */
+public static void main(String [] args) {
+    new HelloThreadedWorld();
+}
+
+/**
+ * Constructor for the HelloThreadedWorld class.
+ */
+HelloThreadedWorld() {
+    System.out.println(quantityCores);
+}
+} // End HelloThreadedWorld
+
+
+class Para implements Runnable {
+static int numberOfThreads = 0;
+private int ind;
 /**
  * New threads runable part.
  * (a)This method must print out it's thread number.
