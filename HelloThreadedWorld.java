@@ -28,7 +28,12 @@ public static void main(String [] args) {
  * Constructor for the HelloThreadedWorld class.
  */
 HelloThreadedWorld() {
-    System.out.println(quantityCores);
+    System.out.println("Hello Threaded World.");
+    System.out.println("Number of cores on your system: " + quantityCores);
+    for (int i = 0; i < quantityCores; i++) {
+        System.out.println("Kicking off thread " + (i + 1));
+        new Thread(new Para(i + 1)).start();
+    }
 }
 } // End HelloThreadedWorld
 
@@ -36,6 +41,9 @@ HelloThreadedWorld() {
 class Para implements Runnable {
 static int numberOfThreads = 0;
 private int ind;
+Para(int ind) {
+    this.ind = ind;
+}
 /**
  * New threads runable part.
  * (a)This method must print out it's thread number.
@@ -43,9 +51,13 @@ private int ind;
  *      wait 1000ms, print out it's thread number and how long it waited
  *      (remember synchronize).
  */
-public void run() {
-    System.out.println("Traad nr:" + ind+"sier hei");
-    try { wait(1000);
-    } catch (Exception e) {return;}
+synchronized public void run() {
+    System.out.println("Traad nr: " + ind + " sier hei!");
+    try { 
+        wait(1000);
+        System.out.println("Traad nr: " + ind + " sier hei etter å ha ventet ettsekund.");
+    } catch (Exception e) {
+        System.out.println(e.toString());
+        return;}
 }
 }
