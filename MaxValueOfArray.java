@@ -1,4 +1,8 @@
 // rapportinfo i bånn av fila.
+// obs på hvor en måler hvor lang tid det tar!
+// RB1:Test å sette runners[i].start(); i samme forløkka som trådene startes opp
+// RB2: Er feil. Første tråd overlapper et tall med andre, så det blir da tall
+// som ikke blir regnet med på slutten.
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.CyclicBarrier;
@@ -15,6 +19,7 @@ class MaxValueOfArray {
 // syclic barrier
 ArrayList<String> results = new ArrayList<String>();
 int n = 10000000; // number of array elements
+//int n = 32;
 int numberContainer[];
 int largest;
 CyclicBarrier b;
@@ -29,6 +34,7 @@ MaxValueOfArray() {
     generateNumbers();
     results.add(findLargestA());
     results.add(findLargestB1());
+    results.add(findLargestB2());
     for (String s: results)
         System.out.println(s);
 }
@@ -40,7 +46,7 @@ String findLargestA() {
     for (int i = 0; i < numberContainer.length; i++)
         if (numberContainer[i] > largest) largest = numberContainer[i];
     time = System.nanoTime() - startTime;
-    String report = "Seq largest " + largest + ". ";
+    String report = "Seq   largest " + largest + ". ";
     report += "Time used: " + time;
     return report;
 }
@@ -53,6 +59,8 @@ String findLargestB1() {
     // kode kjøres her.
     int rest = numberContainer.length % cq;
     int l = numberContainer.length/cq;
+    // trengs trådene til noe etter de er kjørt? Kan jeg droppe å legge de i en
+    // array?
     Thread runners[] = new Thread[cq];
     for (int i = 0; i < cq-1; i++) {
         runners[i] = 
@@ -60,11 +68,14 @@ String findLargestB1() {
     }
     runners[cq-1] = 
     new Thread(new RB1(Arrays.copyOfRange(numberContainer, (cq-1)*l,(cq-1)*l+l+rest)));
+    // Test å sette runners[i].start(); i samme forløkka som trådene startes opp
     for (int i = 0; i < runners.length; i++)
         runners[i].start();
 
 
 
+    // denne må nok settes opp etter at main har fått svar fra barrier. da er
+    // den ferdig.
     time = System.nanoTime() - startTime;
     // en cyclicbarrier som sjekker at alle trådene er ferdige
     try {
@@ -85,13 +96,24 @@ String findLargestB2() {
     largest = 0;
     long time = 0;
     long startTime = System.nanoTime();
+    b = new CyclicBarrier(cq + 1);
     // kode her.. starte tråder med en index. Tråden finner ut hva utfra index. 
+    Thread runners[] = new Thread[cq];
+    for (int i = -1; i < cq -1; i++) {
+        runners[i+1] = 
+        new Thread(new RB2(i));
+        runners[i+1].start();
+    }
     time = System.nanoTime() - startTime;
+    try {
+        b.await();
+    } catch (Exception e) {return null;}
     String report = "ParB2 largest " + largest + ". ";
     report += "Time used: " + time;
     // en cyclicbarrier som sjekker at alle trådene er ferdige
     return report;
 }
+
 String findLargestB3() {
     // globalMax eller noe.
     //Bruk en synchronized metode som alle trådene kaller for hvert element de
@@ -159,6 +181,11 @@ class RB2 extends Runner {
     // element 2, k+1, 2k+1,...
 	// hva gjøres med rest?
 	// k - antall tråder (4)
+    // nc.lengde / k er her det som ganges med k
+    // 10 % 4 = 2. To tall som ikke blir behandlet.
+    // 10 / 4 = 2, 2 * 4 = 8: 10 - 8 er lik rest.
+    // hvis sende med tall fra 2*4=8(cq*nc.lengde/cq) til nc.lengde-1 så er
+    // også rest blitt behandlet.
 	//  0   1   2   3   4   5   6   7   8   9
 	// [3] [4] [7] [1] [3] [3] [5] [7] [0] [0]
 	// T0 [0][k-1][2k-1][3k-1]
@@ -176,17 +203,39 @@ class RB2 extends Runner {
 	//  0:0  0:1  0:2
 	// [ 1-0][k-0][2k-0]
 	//  1:0  1:1  1:2
-	// [ 1-1][k-1][2k-1]
+	// [ 1+1][k+1][2k+1]
 	// du har index 0 - må forholde seg til n / k (9 / 4)
 	// 1. 0   nc[0]: 3
 	// 2. k-1 nc[3]:
 	// 3. 2k-1nc[7]:
 	// 4. 3k-1nc[X]: // null!
+    // du har index 2
+    //
+    /*
+    // oppretter tråden(må nok være i metoden som setter i gang denne) i gang
+    // trådene og at de tar med seg index i
+    for (int i = -1; i < cq -1; i++) {
+        // dette kjøres i run() i tråden.
+        for (int j = 0; j < nc.length / cq; i++) {
+            // i er her det som er laget i forløkken over, men kanskje en
+            // variabel i tråden (slik at det ikke blir tull når forløkken går
+            // videre og får nye verdier av i;
+            nc[j*cq+i] //denne stemmer for alle bortsett fra første posisjon og
+            // rest
+        }
+    }
+    */
     int index;
     RB2(int i) {
         index = i;
     }
     void findLargest() {
+        if (numberContainer[index+1] > largest) 
+            largest = numberContainer[index+1];
+        for (int j = 1; j < numberContainer.length / cq; j++) {
+            if (numberContainer[j*cq+index] > largest)
+                largest = numberContainer[j*cq+index];
+        }
         // Gå gjennom array etter mønster
         // Hvordan skal den ta seg av de siste?
         // f.eks: hvis index == cq, fra siste i system til
