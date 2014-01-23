@@ -157,6 +157,31 @@ class RB2 extends Runner {
     // Deretter deler vi arrayen a[] slik at tråd 0 tester element: 0, k-1,
     // 2k-1, 3k-1,..osv. Tråd 1 tester element nr. 1, k, 2k, .... Tråd 2 tester
     // element 2, k+1, 2k+1,...
+	// hva gjøres med rest?
+	// k - antall tråder (4)
+	//  0   1   2   3   4   5   6   7   8   9
+	// [3] [4] [7] [1] [3] [3] [5] [7] [0] [0]
+	// T0 [0][k-1][2k-1][3k-1]
+	//     0   3    7     11
+	// T1 [1][k+0][2k+0][3k+0]
+	//     1   4    8     12
+	// T2 [2][k+1][2k+1][3k+1]
+	//     2   5    9     13
+	// T3 [3][k+2][2k+2][3k+2]
+	//     3   6    10    14
+	// kan vi starte med index -1?
+	// altså k-index og så blir det 
+	// -1:0 -1:1 -1:2
+	// [1-1][k-1][2k-1]
+	//  0:0  0:1  0:2
+	// [ 1-0][k-0][2k-0]
+	//  1:0  1:1  1:2
+	// [ 1-1][k-1][2k-1]
+	// du har index 0 - må forholde seg til n / k (9 / 4)
+	// 1. 0   nc[0]: 3
+	// 2. k-1 nc[3]:
+	// 3. 2k-1nc[7]:
+	// 4. 3k-1nc[X]: // null!
     int index;
     RB2(int i) {
         index = i;
