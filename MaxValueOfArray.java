@@ -35,6 +35,7 @@ MaxValueOfArray() {
     results.add(findLargestA());
     results.add(findLargestB1());
     results.add(findLargestB2());
+    results.add(findLargestB2r());
     for (String s: results)
         System.out.println(s);
 }
@@ -98,6 +99,28 @@ String findLargestB2() {
     for (int i = -1; i < cq -1; i++) {
         new Thread(new RB2(i)).start();
     }
+    try {
+        b.await();
+    } catch (Exception e) {return null;}
+    time = System.nanoTime() - startTime;
+    String report = "ParB2 largest " + largest + ". ";
+    report += "Time used: " + time;
+    return report;
+}
+
+String findLargestB2r() {
+    largest = 0;
+    long time = 0;
+    long startTime = System.nanoTime();
+    b = new CyclicBarrier(cq + 1);
+    new Thread(new RB2(-1)).start();
+    new Thread(new RB2(0)).start();
+    new Thread(new RB2(1)).start();
+    new Thread(new RB2(2)).start();
+    new Thread(new RB2(3)).start();
+    new Thread(new RB2(4)).start();
+    new Thread(new RB2(5)).start();
+    new Thread(new RB2(6)).start();
     try {
         b.await();
     } catch (Exception e) {return null;}
