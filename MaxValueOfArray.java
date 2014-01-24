@@ -76,41 +76,34 @@ String findLargestB1() {
 
     // denne må nok settes opp etter at main har fått svar fra barrier. da er
     // den ferdig.
-    time = System.nanoTime() - startTime;
     // en cyclicbarrier som sjekker at alle trådene er ferdige
     try {
         b.await();
     } catch (Exception e) {return null;}
+    time = System.nanoTime() - startTime;
     String report = "ParB1 largest " + largest + ". ";
     report += "Time used: " + time;
     return report;
 }
 
+/**
+ * Denne er feil. En liten overlapp og en manglende int på slutten. Mangler
+ * rest.
+ */
 String findLargestB2() {
-    // mat ut hvor den skal jobbe på arrayen til trådene
-    // hvis metoden i tråden kan få en index å jobbe ut fra - ok.
-    // egen klasse for dette.
-    // Deretter deler vi arrayen a[] slik at tråd 0 tester element: 0, k-1,
-    // 2k-1, 3k-1,..osv. Tråd 1 tester element nr. 1, k, 2k, .... Tråd 2 tester
-    // element 2, k+1, 2k+1,...
     largest = 0;
     long time = 0;
     long startTime = System.nanoTime();
     b = new CyclicBarrier(cq + 1);
-    // kode her.. starte tråder med en index. Tråden finner ut hva utfra index. 
-    Thread runners[] = new Thread[cq];
     for (int i = -1; i < cq -1; i++) {
-        runners[i+1] = 
-        new Thread(new RB2(i));
-        runners[i+1].start();
+        new Thread(new RB2(i)).start();
     }
-    time = System.nanoTime() - startTime;
     try {
         b.await();
     } catch (Exception e) {return null;}
+    time = System.nanoTime() - startTime;
     String report = "ParB2 largest " + largest + ". ";
     report += "Time used: " + time;
-    // en cyclicbarrier som sjekker at alle trådene er ferdige
     return report;
 }
 
