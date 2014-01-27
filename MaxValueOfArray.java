@@ -18,7 +18,7 @@ class MaxValueOfArray {
 //
 // syclic barrier
 ArrayList<String> results = new ArrayList<String>();
-ArrayList<Integer> times = new ArrayList<Integer>();
+ArrayList<Long> times = new ArrayList<Long>();
 int n = 1000000; // number of array elements
 //int n = 32;
 int numberContainer[];
@@ -75,6 +75,8 @@ MaxValueOfArray() {
     results.add(findLargestB4());
     for (String s: results)
         System.out.println(s);
+    for (long i: times)
+        System.out.println(i);
 }
 
 String findLargestA() {
@@ -217,6 +219,7 @@ String findLargestB4() {
     time = System.nanoTime() - startTime;
     String report = "ParB4 largest " + largest + ". ";
     report += "Time used: " + time;
+    times.add(time);
     // en cyclicbarrier som sjekker at alle trådene er ferdige
     return report;
 }
