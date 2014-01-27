@@ -18,7 +18,8 @@ class MaxValueOfArray {
 //
 // syclic barrier
 ArrayList<String> results = new ArrayList<String>();
-int n = 10000000; // number of array elements
+ArrayList<Integer> times = new ArrayList<Integer>();
+int n = 1000000; // number of array elements
 //int n = 32;
 int numberContainer[];
 int largest;
@@ -32,10 +33,46 @@ public static void main (String [] args) {
 MaxValueOfArray() {
     numberContainer = new int[n];
     generateNumbers();
-    results.add(findLargestA());
-    results.add(findLargestB1());
-    results.add(findLargestB2());
     results.add(findLargestB2r());
+    results.add(findLargestB2r());
+    results.add(findLargestB2r());
+    results.add(findLargestB2r());
+    results.add(findLargestB2r());
+    results.add(findLargestB2r());
+    results.add(findLargestB2r());
+    results.add(findLargestB2r());
+    results.add(findLargestB2r());
+    results.add(findLargestB2r());
+    results.add(findLargestB2r());
+    results.add(findLargestB2r());
+    results.add(findLargestB3());
+    results.add(findLargestB3());
+    results.add(findLargestB3());
+    results.add(findLargestB3());
+    results.add(findLargestB3());
+    results.add(findLargestB3());
+    results.add(findLargestB3());
+    results.add(findLargestB3());
+    results.add(findLargestB3());
+    results.add(findLargestB3());
+    results.add(findLargestB3());
+    results.add(findLargestB3());
+    results.add(findLargestB3());
+    results.add(findLargestB3());
+    results.add(findLargestB4());
+    results.add(findLargestB4());
+    results.add(findLargestB4());
+    results.add(findLargestB4());
+    results.add(findLargestB4());
+    results.add(findLargestB4());
+    results.add(findLargestB4());
+    results.add(findLargestB4());
+    results.add(findLargestB4());
+    results.add(findLargestB4());
+    results.add(findLargestB4());
+    results.add(findLargestB4());
+    results.add(findLargestB4());
+    results.add(findLargestB4());
     for (String s: results)
         System.out.println(s);
 }
@@ -137,6 +174,20 @@ String findLargestB3() {
     //gammel verdi av globalMax.
     largest = 0;
     long time = 0;
+    long startTime = System.nanoTime();
+    b = new CyclicBarrier(cq + 1);
+    new Thread(new RB3(-1)).start();
+    new Thread(new RB3(0)).start();
+    new Thread(new RB3(1)).start();
+    new Thread(new RB3(2)).start();
+    new Thread(new RB3(3)).start();
+    new Thread(new RB3(4)).start();
+    new Thread(new RB3(5)).start();
+    new Thread(new RB3(6)).start();
+    try {
+        b.await();
+    } catch (Exception e) {return null;}
+    time = System.nanoTime() - startTime;
     String report = "ParB3 largest " + largest + ". ";
     report += "Time used: " + time;
     // en cyclicbarrier som sjekker at alle trådene er ferdige
@@ -150,6 +201,20 @@ String findLargestB4() {
     //hvilken av trådenes lokale max som var størst.
     largest = 0;
     long time = 0;
+    long startTime = System.nanoTime();
+    b = new CyclicBarrier(cq + 1);
+    new Thread(new RB4(-1)).start();
+    new Thread(new RB4(0)).start();
+    new Thread(new RB4(1)).start();
+    new Thread(new RB4(2)).start();
+    new Thread(new RB4(3)).start();
+    new Thread(new RB4(4)).start();
+    new Thread(new RB4(5)).start();
+    new Thread(new RB4(6)).start();
+    try {
+        b.await();
+    } catch (Exception e) {return null;}
+    time = System.nanoTime() - startTime;
     String report = "ParB4 largest " + largest + ". ";
     report += "Time used: " + time;
     // en cyclicbarrier som sjekker at alle trådene er ferdige
@@ -161,21 +226,20 @@ void generateNumbers() {
     }
 }
 
-synchronized void checkLarger(int n) {
+synchronized void findLargest() {
+    System.out.println("NO!");
+}
+
+synchronized void findLargestSync(int n) {
     if (n > largest) largest = n;
 }
 
 class Runner implements Runnable {
     Runner() {
     }
-    void findLargest() {}
-    public void run() {
-        findLargest();
-        try {
-            b.await();
-        } catch (Exception e) {return;}
-    }
+    public void run() {}
 }
+
 class RB1 extends Runner {
     // denne er feil siden den jobber på en felles variabel uten at den vet om
     // andre jobber på den samme.
@@ -186,6 +250,12 @@ class RB1 extends Runner {
     void findLargest() {
         for (int i = 0; i < numberContainer.length; i++)
             if (numberContainer[i] > largest) largest = numberContainer[i];
+    }
+    public void run() {
+        findLargest();
+        try {
+            b.await();
+        } catch (Exception e) {return;}
     }
 }
 class RB2 extends Runner {
@@ -256,6 +326,62 @@ class RB2 extends Runner {
         // Hvordan skal den ta seg av de siste?
         // f.eks: hvis index == cq, fra siste i system til
         // numberContainer.length
+    }
+    public void run() {
+        findLargest();
+        try {
+            b.await();
+        } catch (Exception e) {return;}
+    }
+}
+class RB3 extends Runner {
+    // denne er feil siden den jobber på en felles variabel uten at den vet om
+    // andre jobber på den samme.
+    int index;
+    RB3(int i) {
+        index = i;
+    }
+    void findLargest() {
+        findLargestSync(numberContainer[index+1]);
+        for (int j = 1; j < numberContainer.length / cq; j++)
+            findLargestSync(numberContainer[j*cq+index]);
+        // Gå gjennom array etter mønster
+        // Hvordan skal den ta seg av de siste?
+        // f.eks: hvis index == cq, fra siste i system til
+        // numberContainer.length
+    }
+    public void run() {
+        findLargest();
+        try {
+            b.await();
+        } catch (Exception e) {return;}
+    }
+}
+class RB4 extends Runner {
+    // denne er feil siden den jobber på en felles variabel uten at den vet om
+    // andre jobber på den samme.
+    int index;
+    int largestL = 0;
+    RB4(int i) {
+        index = i;
+    }
+    void findLargest() {
+        if (numberContainer[index+1] > largestL)
+            largestL = numberContainer[index+1];
+        for (int j = 1; j < numberContainer.length / cq; j++) {
+            if (numberContainer[j*cq+index] > largestL)
+                largestL = numberContainer[j*cq+index];
+        }
+    }
+    void findLargestGlobal() {
+        findLargestSync(largestL);
+    }
+    public void run() {
+        findLargest();
+        try {
+            b.await();
+        } catch (Exception e) {return;}
+        findLargestGlobal();
     }
 }
 }
