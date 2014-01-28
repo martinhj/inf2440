@@ -60,13 +60,16 @@ MaxValueOfArray() {
         findLargestB2();
     }
     printResult();
+    results.add("B4 parallel algo.");
+    for (int i = 0; i < 9; i++) {
+        findLargestB4();
+    }
+    printResult();
     results.add("B4r parallel algo.");
     for (int i = 0; i < 9; i++) {
         findLargestB4r();
     }
     printResult();
-    /* for (String s: results) */
-    /*     System.out.println(s); */
 }
 
 void printResult() {
@@ -263,10 +266,6 @@ void generateNumbers() {
     }
 }
 
-synchronized void findLargest() {
-    System.out.println("NO!");
-}
-
 synchronized void findLargestSync(int n) {
     if (n > largest) largest = n;
 }
@@ -280,17 +279,12 @@ class Runner implements Runnable {
 class RB1 extends Runner {
     // denne er feil siden den jobber på en felles variabel uten at den vet om
     // andre jobber på den samme.
-    /* int st; */
-    /* int sp; */
+    // tar ikke med seg rest, se kommentar (!!) i RB2 for en mulig løsning på
+    // dette.
     int i;
     RB1(int index) {
         i = index;
     }
-    /* RB1(int start, int stop) { */
-    /*     st = start; */
-    /*     sp = stop; */
-
-    /* } */
     void findLargest() {
         for (int j = i*pl; j < i*pl+pl; j++) {
             if (numberContainer[j] > largest)
@@ -308,56 +302,6 @@ class RB1 extends Runner {
 class RB2 extends Runner {
     // denne er feil siden den jobber på en felles variabel uten at den vet om
     // andre jobber på den samme.
-    //
-    // Deretter deler vi arrayen a[] slik at tråd 0 tester element: 0, k-1,
-    // 2k-1, 3k-1,..osv. Tråd 1 tester element nr. 1, k, 2k, .... Tråd 2 tester
-    // element 2, k+1, 2k+1,...
-	// hva gjøres med rest?
-	// k - antall tråder (4)
-    // nc.lengde / k er her det som ganges med k
-    // 10 % 4 = 2. To tall som ikke blir behandlet.
-    // 10 / 4 = 2, 2 * 4 = 8: 10 - 8 er lik rest.
-    // hvis sende med tall fra 2*4=8(cq*nc.lengde/cq) til nc.lengde-1 så er
-    // også rest blitt behandlet.
-	//  0   1   2   3   4   5   6   7   8   9
-	// [3] [4] [7] [1] [3] [3] [5] [7] [0] [0]
-	// T0 [0][k-1][2k-1][3k-1]
-	//     0   3    7     11
-	// T1 [1][k+0][2k+0][3k+0]
-	//     1   4    8     12
-	// T2 [2][k+1][2k+1][3k+1]
-	//     2   5    9     13
-	// T3 [3][k+2][2k+2][3k+2]
-	//     3   6    10    14
-	// kan vi starte med index -1?
-	// altså k-index og så blir det 
-	// -1:0 -1:1 -1:2
-	// [1-1][k-1][2k-1]
-	//  0:0  0:1  0:2
-	// [ 1-0][k-0][2k-0]
-	//  1:0  1:1  1:2
-	// [ 1+1][k+1][2k+1]
-	// du har index 0 - må forholde seg til n / k (9 / 4)
-	// 1. 0   nc[0]: 3
-	// 2. k-1 nc[3]:
-	// 3. 2k-1nc[7]:
-	// 4. 3k-1nc[X]: // null!
-    // du har index 2
-    //
-    /*
-    // oppretter tråden(må nok være i metoden som setter i gang denne) i gang
-    // trådene og at de tar med seg index i
-    for (int i = -1; i < cq -1; i++) {
-        // dette kjøres i run() i tråden.
-        for (int j = 0; j < nc.length / cq; i++) {
-            // i er her det som er laget i forløkken over, men kanskje en
-            // variabel i tråden (slik at det ikke blir tull når forløkken går
-            // videre og får nye verdier av i;
-            nc[j*cq+i] //denne stemmer for alle bortsett fra første posisjon og
-            // rest
-        }
-    }
-    */
     int index;
     RB2(int i) {
         index = i;
@@ -369,10 +313,10 @@ class RB2 extends Runner {
             if (numberContainer[j*cq+index] > largest)
                 largest = numberContainer[j*cq+index];
         }
-        // Gå gjennom array etter mønster
-        // Hvordan skal den ta seg av de siste?
-        // f.eks: hvis index == cq, fra siste i system til
-        // numberContainer.length
+//!!    // Gå gjennom array etter mønster
+//!!    // Hvordan skal den ta seg av de siste?
+//!!    // f.eks: hvis index == cq, fra siste i system til
+//!!    // numberContainer.length
     }
     public void run() {
         findLargest();
@@ -433,8 +377,10 @@ class RB4 extends Runner {
 }
 
 class RB4r extends Runner {
-    // denne er feil siden den jobber på en felles variabel uten at den vet om
-    // andre jobber på den samme.
+    // tar ikke med seg rest, se kommentar (!!) i RB2 for en mulig løsning på
+    // dette.
+    // den dummer seg ut i sammenligningen selv om den bruker en synchronized
+    // metode for å sammenligne verdiene.
     int i;
     int largestL = 0;
     RB4r(int index) {
