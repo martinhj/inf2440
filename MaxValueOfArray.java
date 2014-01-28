@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.CyclicBarrier;
 import java.util.Arrays;
+import java.util.Collections;
 
 class MaxValueOfArray {
 // b1: dele opp arrayen mellom trådene, jobber mot samme variabel
@@ -19,7 +20,9 @@ class MaxValueOfArray {
 // syclic barrier
 ArrayList<String> results = new ArrayList<String>();
 ArrayList<Long> times = new ArrayList<Long>();
-int n = 100000000; // number of array elements
+ArrayList<Integer> findings = new ArrayList<Integer>();
+// number of array elements
+int n = 100000000; 
 /* int n = 32; */
 int numberContainer[];
 int largest;
@@ -34,30 +37,51 @@ public static void main (String [] args) {
 MaxValueOfArray() {
     numberContainer = new int[n];
     generateNumbers();
-    results.add(findLargestB2r());
-    results.add(findLargestB2r());
-    results.add(findLargestB2r());
-    results.add(findLargestB2r());
-    results.add(findLargestB2r());
-    results.add(findLargestB2r());
-    results.add(findLargestB2r());
-    results.add(findLargestB2r());
-    results.add(findLargestB2r());
-    results.add(findLargestB2r());
-    results.add(findLargestB2r());
-    results.add(findLargestB2r());
-    for (int i = 0; i < 10; i++) {
-        results.add(findLargestB3());
+    // denne trenger utskriftsfunksjonalitet
+    results.add("B2r parallel algo.");
+    for (int i = 0; i < 9; i++) 
+        findLargestB2r();
+    printResult();
+    /* for (int i = 0; i < 10; i++) { */
+    /*     results.add(findLargestB3()); */
+    /* } */
+    results.add("A sequential algo.");
+    for (int i = 0; i < 9; i++) {
+        findLargestA();
     }
-    for (int i = 0; i < 10; i++) {
-        results.add(findLargestA());
+    printResult();
+    results.add("B1 parallel algo.");
+    for (int i = 0; i < 9; i++) {
+        findLargestB1();
     }
-    for (int i = 0; i < 10; i++) {
-        results.add(findLargestB1());
+    printResult();
+    results.add("B2 parallel algo.");
+    for (int i = 0; i < 9; i++) {
+        findLargestB2();
     }
-    results.add(findLargestB4());
+    printResult();
+    results.add("B4r parallel algo.");
+    for (int i = 0; i < 9; i++) {
+        findLargestB4r();
+    }
+    printResult();
+    /* for (String s: results) */
+    /*     System.out.println(s); */
+}
+
+void printResult() {
+    long sum = 0;
+    Collections.sort(times);
+    //System.out.println(report);
     for (String s: results)
         System.out.println(s);
+    System.out.println("mean: " + (times.get(4)/1000000.0) + "ms");
+    System.out.println("Results:");
+    for (int i: findings)
+        System.out.print(i + " ");
+    times = new ArrayList<Long>();
+    results = new ArrayList<String>();
+    findings = new ArrayList<Integer>();
 }
 
 String findLargestA() {
@@ -69,6 +93,8 @@ String findLargestA() {
     time = System.nanoTime() - startTime;
     String report = "Seq   largest " + largest + ". ";
     report += "Time used: " + time;
+    times.add(time);
+    findings.add(largest);
     return report;
 }
 
@@ -95,6 +121,8 @@ String findLargestB1() {
     time = System.nanoTime() - startTime;
     String report = "ParB1 largest " + largest + ". ";
     report += "Time used: " + time;
+    times.add(time);
+    findings.add(largest);
     return report;
 }
 
@@ -116,6 +144,8 @@ String findLargestB2() {
     time = System.nanoTime() - startTime;
     String report = "ParB2 largest " + largest + ". ";
     report += "Time used: " + time;
+    times.add(time);
+    findings.add(largest);
     return report;
 }
 
@@ -138,6 +168,8 @@ String findLargestB2r() {
     time = System.nanoTime() - startTime;
     String report = "ParB2 largest " + largest + ". ";
     report += "Time used: " + time;
+    times.add(time);
+    findings.add(largest);
     return report;
 }
 
@@ -165,6 +197,7 @@ String findLargestB3() {
     String report = "ParB3 largest " + largest + ". ";
     report += "Time used: " + time;
     // en cyclicbarrier som sjekker at alle trådene er ferdige
+    findings.add(largest);
     return report;
 }
 String findLargestB4() {
@@ -192,7 +225,36 @@ String findLargestB4() {
     String report = "ParB4 largest " + largest + ". ";
     report += "Time used: " + time;
     times.add(time);
+    findings.add(largest);
     // en cyclicbarrier som sjekker at alle trådene er ferdige
+    return report;
+}
+
+String findLargestB4r() {
+    largest = 0;
+    long time = 0;
+    long startTime = System.nanoTime();
+    b = new CyclicBarrier(cq + 1);
+    rest = numberContainer.length % cq;
+    pl = numberContainer.length/cq;
+    l = numberContainer.length;
+    for (int i = 0; i < cq; i++) {
+        new Thread(new RB4r(i)).start();
+    }
+    // denne ganmle får med seg rest, men gjør flere beregninger før den sender
+    // ut til trådene.
+    /* for (int i = 0; i < cq-1; i++) { */
+    /*     new Thread(new RB1(i*pl,i*pl+pl)).start(); */
+    /* } */
+    /* new Thread(new RB1((cq-1)*pl,(cq-1)*pl+pl+rest)).start(); */
+    try {
+        b.await();
+    } catch (Exception e) {return null;}
+    time = System.nanoTime() - startTime;
+    String report = "ParB1 largest " + largest + ". ";
+    report += "Time used: " + time;
+    times.add(time);
+    findings.add(largest);
     return report;
 }
 void generateNumbers() {
@@ -218,8 +280,8 @@ class Runner implements Runnable {
 class RB1 extends Runner {
     // denne er feil siden den jobber på en felles variabel uten at den vet om
     // andre jobber på den samme.
-    int st;
-    int sp;
+    /* int st; */
+    /* int sp; */
     int i;
     RB1(int index) {
         i = index;
@@ -233,11 +295,6 @@ class RB1 extends Runner {
         for (int j = i*pl; j < i*pl+pl; j++) {
             if (numberContainer[j] > largest)
                 largest = numberContainer[j];
-        }
-    }
-    void findLargestB() {
-        for (int i = st; i < sp; i++) {
-            if (numberContainer[i] > largest) largest = numberContainer[i];
         }
     }
 
@@ -366,6 +423,38 @@ class RB4 extends Runner {
     void findLargestGlobal() {
         findLargestSync(largestL);
     }
+    public void run() {
+        findLargest();
+        try {
+            b.await();
+        } catch (Exception e) {return;}
+        findLargestGlobal();
+    }
+}
+
+class RB4r extends Runner {
+    // denne er feil siden den jobber på en felles variabel uten at den vet om
+    // andre jobber på den samme.
+    int i;
+    int largestL = 0;
+    RB4r(int index) {
+        i = index;
+    }
+    /* RB1(int start, int stop) { */
+    /*     st = start; */
+    /*     sp = stop; */
+
+    /* } */
+    void findLargest() {
+        for (int j = i*pl; j < i*pl+pl; j++) {
+            if (numberContainer[j] > largestL)
+                largestL = numberContainer[j];
+        }
+    }
+    void findLargestGlobal() {
+        findLargestSync(largestL);
+    }
+
     public void run() {
         findLargest();
         try {
