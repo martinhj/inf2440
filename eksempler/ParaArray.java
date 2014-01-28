@@ -1,5 +1,5 @@
 import java.util.*;
-import easyIO.*;
+//import easyIO.*;
 import java.util.concurrent.*;
 
 /** Start >java Parallell <ant traader> <ant ganger i loop>
@@ -12,10 +12,10 @@ class ParaArray{
 
     void utskrift(double tid) {
        System.out.println("Tid "+antGanger+" kall * "+ antTraader+" Traader ="+
-                            Format.align(tid,9,6)+ " sek,");
+                            tid+ " sek,");
         for (int i = 0; i < antTraader; i++) { System.out.println(
            " sum:"+ tall[i] +", tap:"+ (antGanger -tall[i])+" = "+
-           Format.align( ((antGanger - tall[i])*100.0 /antGanger),5,1)+"%");
+            ((antGanger - tall[i])*100.0 /antGanger)+"%");
        }
     } // end utskrift
 
