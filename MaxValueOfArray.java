@@ -22,7 +22,7 @@ ArrayList<String> results = new ArrayList<String>();
 ArrayList<Long> times = new ArrayList<Long>();
 ArrayList<Integer> findings = new ArrayList<Integer>();
 // number of array elements
-int n = 100000000; 
+int n = 10000000; 
 /* int n = 32; */
 int numberContainer[];
 int largest;
@@ -82,6 +82,7 @@ void printResult() {
     System.out.println("Results:");
     for (int i: findings)
         System.out.print(i + " ");
+    System.out.println();
     times = new ArrayList<Long>();
     results = new ArrayList<String>();
     findings = new ArrayList<Integer>();
@@ -252,6 +253,7 @@ String findLargestB4r() {
     /* new Thread(new RB1((cq-1)*pl,(cq-1)*pl+pl+rest)).start(); */
     try {
         b.await();
+        b.await();
     } catch (Exception e) {return null;}
     time = System.nanoTime() - startTime;
     String report = "ParB1 largest " + largest + ". ";
@@ -372,7 +374,7 @@ class RB4 extends Runner {
         try {
             b.await();
         } catch (Exception e) {return;}
-        findLargestGlobal();
+        findLargestSync(largestL);
     }
 }
 
@@ -405,8 +407,9 @@ class RB4r extends Runner {
         findLargest();
         try {
             b.await();
+            findLargestGlobal();
+            b.await();
         } catch (Exception e) {return;}
-        findLargestGlobal();
     }
 }
 }
