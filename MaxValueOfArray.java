@@ -19,10 +19,11 @@ class MaxValueOfArray {
 // syclic barrier
 ArrayList<String> results = new ArrayList<String>();
 ArrayList<Long> times = new ArrayList<Long>();
-/* int n = 1000000; // number of array elements */
-int n = 32;
+int n = 100000000; // number of array elements
+/* int n = 32; */
 int numberContainer[];
 int largest;
+int rest, pl, l;
 CyclicBarrier b;
 Random ranGen = new Random();
 public int cq = Runtime.getRuntime().availableProcessors();
@@ -45,15 +46,18 @@ MaxValueOfArray() {
     results.add(findLargestB2r());
     results.add(findLargestB2r());
     results.add(findLargestB2r());
-    results.add(findLargestB3());
+    for (int i = 0; i < 10; i++) {
+        results.add(findLargestB3());
+    }
+    for (int i = 0; i < 10; i++) {
+        results.add(findLargestA());
+    }
     for (int i = 0; i < 10; i++) {
         results.add(findLargestB1());
     }
     results.add(findLargestB4());
     for (String s: results)
         System.out.println(s);
-    for (long i: times)
-        System.out.println(i);
 }
 
 String findLargestA() {
@@ -69,27 +73,22 @@ String findLargestA() {
 }
 
 String findLargestB1() {
-
-/*
- * Dele opp Arrayen på følgende måte:
- * a.length = 16, k=2
- 16 / 2 = 8
- 0: 0(a.length / k * 0)-7 (8 | a.length / k plasser fram)
- 1: 8(a.length / k * 1)-15 (8 | til a.length -1)
- */
- /* for () { */
- /* } */
     largest = 0;
     long time = 0;
     long startTime = System.nanoTime();
     b = new CyclicBarrier(cq + 1);
-    int rest = numberContainer.length % cq;
-    int pl = numberContainer.length/cq;
-    int l = numberContainer.length;
-    for (int i = 0; i < cq-1; i++) {
-        new Thread(new RB1(i*pl,i*pl+pl)).start();
+    rest = numberContainer.length % cq;
+    pl = numberContainer.length/cq;
+    l = numberContainer.length;
+    for (int i = 0; i < cq; i++) {
+        new Thread(new RB1(i)).start();
     }
-    new Thread(new RB1((cq-1)*pl,(cq-1)*pl+pl+rest)).start();
+    // denne ganmle får med seg rest, men gjør flere beregninger før den sender
+    // ut til trådene.
+    /* for (int i = 0; i < cq-1; i++) { */
+    /*     new Thread(new RB1(i*pl,i*pl+pl)).start(); */
+    /* } */
+    /* new Thread(new RB1((cq-1)*pl,(cq-1)*pl+pl+rest)).start(); */
     try {
         b.await();
     } catch (Exception e) {return null;}
@@ -221,12 +220,22 @@ class RB1 extends Runner {
     // andre jobber på den samme.
     int st;
     int sp;
-    RB1(int start, int stop) {
-        st = start;
-        sp = stop;
-
+    int i;
+    RB1(int index) {
+        i = index;
     }
+    /* RB1(int start, int stop) { */
+    /*     st = start; */
+    /*     sp = stop; */
+
+    /* } */
     void findLargest() {
+        for (int j = i*pl; j < i*pl+pl; j++) {
+            if (numberContainer[j] > largest)
+                largest = numberContainer[j];
+        }
+    }
+    void findLargestB() {
         for (int i = st; i < sp; i++) {
             if (numberContainer[i] > largest) largest = numberContainer[i];
         }
