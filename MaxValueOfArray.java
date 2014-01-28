@@ -19,8 +19,8 @@ class MaxValueOfArray {
 // syclic barrier
 ArrayList<String> results = new ArrayList<String>();
 ArrayList<Long> times = new ArrayList<Long>();
-int n = 1000000; // number of array elements
-//int n = 32;
+/* int n = 1000000; // number of array elements */
+int n = 32;
 int numberContainer[];
 int largest;
 CyclicBarrier b;
@@ -46,32 +46,9 @@ MaxValueOfArray() {
     results.add(findLargestB2r());
     results.add(findLargestB2r());
     results.add(findLargestB3());
-    results.add(findLargestB3());
-    results.add(findLargestB3());
-    results.add(findLargestB3());
-    results.add(findLargestB3());
-    results.add(findLargestB3());
-    results.add(findLargestB3());
-    results.add(findLargestB3());
-    results.add(findLargestB3());
-    results.add(findLargestB3());
-    results.add(findLargestB3());
-    results.add(findLargestB3());
-    results.add(findLargestB3());
-    results.add(findLargestB3());
-    results.add(findLargestB4());
-    results.add(findLargestB4());
-    results.add(findLargestB4());
-    results.add(findLargestB4());
-    results.add(findLargestB4());
-    results.add(findLargestB4());
-    results.add(findLargestB4());
-    results.add(findLargestB4());
-    results.add(findLargestB4());
-    results.add(findLargestB4());
-    results.add(findLargestB4());
-    results.add(findLargestB4());
-    results.add(findLargestB4());
+    for (int i = 0; i < 10; i++) {
+        results.add(findLargestB1());
+    }
     results.add(findLargestB4());
     for (String s: results)
         System.out.println(s);
@@ -90,33 +67,29 @@ String findLargestA() {
     report += "Time used: " + time;
     return report;
 }
+
 String findLargestB1() {
-    // mat ut nye arrays til tråder
-    b = new CyclicBarrier(cq + 1);
+
+/*
+ * Dele opp Arrayen på følgende måte:
+ * a.length = 16, k=2
+ 16 / 2 = 8
+ 0: 0(a.length / k * 0)-7 (8 | a.length / k plasser fram)
+ 1: 8(a.length / k * 1)-15 (8 | til a.length -1)
+ */
+ /* for () { */
+ /* } */
     largest = 0;
     long time = 0;
     long startTime = System.nanoTime();
-    // kode kjøres her.
+    b = new CyclicBarrier(cq + 1);
     int rest = numberContainer.length % cq;
-    int l = numberContainer.length/cq;
-    // trengs trådene til noe etter de er kjørt? Kan jeg droppe å legge de i en
-    // array?
-    Thread runners[] = new Thread[cq];
+    int pl = numberContainer.length/cq;
+    int l = numberContainer.length;
     for (int i = 0; i < cq-1; i++) {
-        runners[i] = 
-        new Thread(new RB1(Arrays.copyOfRange(numberContainer, i*l,i*l+l)));
+        new Thread(new RB1(i*pl,i*pl+pl)).start();
     }
-    runners[cq-1] = 
-    new Thread(new RB1(Arrays.copyOfRange(numberContainer, (cq-1)*l,(cq-1)*l+l+rest)));
-    // Test å sette runners[i].start(); i samme forløkka som trådene startes opp
-    for (int i = 0; i < runners.length; i++)
-        runners[i].start();
-
-
-
-    // denne må nok settes opp etter at main har fått svar fra barrier. da er
-    // den ferdig.
-    // en cyclicbarrier som sjekker at alle trådene er ferdige
+    new Thread(new RB1((cq-1)*pl,(cq-1)*pl+pl+rest)).start();
     try {
         b.await();
     } catch (Exception e) {return null;}
@@ -246,14 +219,19 @@ class Runner implements Runnable {
 class RB1 extends Runner {
     // denne er feil siden den jobber på en felles variabel uten at den vet om
     // andre jobber på den samme.
-    int numberContainer[];
-    RB1(int [] nc) {
-        numberContainer = nc;
+    int st;
+    int sp;
+    RB1(int start, int stop) {
+        st = start;
+        sp = stop;
+
     }
     void findLargest() {
-        for (int i = 0; i < numberContainer.length; i++)
+        for (int i = st; i < sp; i++) {
             if (numberContainer[i] > largest) largest = numberContainer[i];
+        }
     }
+
     public void run() {
         findLargest();
         try {
