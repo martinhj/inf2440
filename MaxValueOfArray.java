@@ -23,7 +23,7 @@ ArrayList<String> results = new ArrayList<String>();
 ArrayList<Long> times = new ArrayList<Long>();
 ArrayList<Integer> findings = new ArrayList<Integer>();
 // number of array elements
-int n = 10000000;
+int n = 100000000;
 /* int n = 32; */
 int numberContainer[];
 int largest;
@@ -32,6 +32,7 @@ CyclicBarrier b;
 Semaphore s;
 Random ranGen = new Random();
 public int cq = Runtime.getRuntime().availableProcessors();
+int largestc[] = new int[cq];
 Thread [] t = new Thread[cq];
 public static void main (String [] args) {
     new MaxValueOfArray();
@@ -45,16 +46,19 @@ MaxValueOfArray() {
         findLargestA();
     }
     printResult();
+    
     results.add("Barrier parallel algo.");
     for (int i = 0; i < 9; i++) {
         findLargestBarrier();
     }
     printResult();
+
     results.add("Semaphore parallel algo.");
     for (int i = 0; i < 9; i++) {
         findLargestSemaphore();
     }
     printResult();
+
     results.add("Join parallel algo.");
     for (int i = 0; i < 9; i++) {
         findLargestJoin();
@@ -65,7 +69,6 @@ MaxValueOfArray() {
 void printResult() {
     long sum = 0;
     Collections.sort(times);
-    //System.out.println(report);
     for (String s: results)
         System.out.println(s);
     System.out.println("mean: " + (times.get(4)/1000000.0) + "ms");
@@ -153,14 +156,15 @@ void findLargestJoin() {
     }
     for (int i = 0; i < cq; i++) {
         try {
-            // går ikke videre her
             t[i].join();
-            // sammenligning av største trenger ikke å gi den største her!
         } catch (Exception e) {return;}
     }
+    for (int n: largestc)
+        if (n > largest) largest = n;
     time = System.nanoTime() - startTime;
     times.add(time);
     findings.add(largest);
+    largestc = new int[cq];
 }
 
 
@@ -180,9 +184,12 @@ void findLargestSemaphore() {
         s.acquire();
         // sammenligning av største trenger ikke å gi den største her!
     } catch (Exception e) {return;}
+    for (int n: largestc)
+        if (n > largest) largest = n;
     time = System.nanoTime() - startTime;
     times.add(time);
     findings.add(largest);
+    largestc = new int[cq];
 }
 
 void generateNumbers() {
@@ -280,18 +287,11 @@ class RBJoin extends Runner {
             if (numberContainer[j] > largestL)
                 largestL = numberContainer[j];
         }
-    }
-    void findLargestGlobal() {
-        findLargestSync(largestL);
+        largestc[i] = largestL;
     }
 
     public void run() {
         findLargest();
-        findLargestGlobal();
-        try {
-            b.await();
-            b.await();
-        } catch (Exception e) {return;}
     }
 }
 
@@ -315,6 +315,7 @@ class RBSem extends Runner {
             if (numberContainer[j] > largestL)
                 largestL = numberContainer[j];
         }
+        largestc[i] = largestL;
     }
     void findLargestGlobal() {
         findLargestSync(largestL);
@@ -324,8 +325,6 @@ class RBSem extends Runner {
         findLargest();
         try {
             s.release();
-            findLargestGlobal();
-            /* b.await(); */
         } catch (Exception e) {return;}
     }
 }
