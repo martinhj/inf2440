@@ -135,11 +135,13 @@ void findLargestBarrier() {
     }
     try {
         b.await();
-        b.await();
     } catch (Exception e) {return;}
+    for (int n: largestc)
+        if (n > largest) largest = n;
     time = System.nanoTime() - startTime;
     times.add(time);
     findings.add(largest);
+    largestc = new int[cq];
 }
 
 // denne mangler at sammenligningen av de lokale store blir sammenlignet
@@ -252,6 +254,7 @@ class RB4r extends Runner {
             if (numberContainer[j] > largestL)
                 largestL = numberContainer[j];
         }
+        largestc[i] = largestL;
     }
     void findLargestGlobal() {
         findLargestSync(largestL);
@@ -261,8 +264,8 @@ class RB4r extends Runner {
         findLargest();
         try {
             b.await();
-            findLargestGlobal();
-            b.await();
+            /* findLargestGlobal(); */
+            /* b.await(); */
         } catch (Exception e) {return;}
     }
 }
