@@ -11,30 +11,23 @@ import java.util.Arrays;
 import java.util.Collections;
 
 class MaxValueOfArray {
-// b1: dele opp arrayen mellom trådene, jobber mot samme variabel
-// b2: jobbe opp mot samme array, forskjellige posisjoner, jobber mot samme var
-// b3: synchronized metode som oppdaterer globalMax
-// b4: localMax, synchronized
-// passe på at alle testene er gjort før man går til neste! hvis en venter med
-// return til de er helt ferdige (f.eks. si ifra at alle er ferdige til slutt).
-//
-// syclic barrier
 ArrayList<String> results = new ArrayList<String>();
 ArrayList<Long> times = new ArrayList<Long>();
 ArrayList<Integer> findings = new ArrayList<Integer>();
-// number of array elements
 int n = 100000000;
-/* int n = 32; */
 int numberContainer[];
 int largest;
 int rest, pl, l;
 CyclicBarrier b;
 Semaphore s;
 Random ranGen = new Random();
-public int cq = Runtime.getRuntime().availableProcessors();
+public static int cq;
 int largestc[] = new int[cq];
 Thread [] t = new Thread[cq];
 public static void main (String [] args) {
+    if (args.length > 0) cq = Integer.parseInt(args[0]);
+    else cq = Runtime.getRuntime().availableProcessors();
+    System.out.println("Running with " + cq + " threads.");
     new MaxValueOfArray();
 }
 
