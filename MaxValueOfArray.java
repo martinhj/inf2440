@@ -14,7 +14,7 @@ class MaxValueOfArray {
 ArrayList<String> results = new ArrayList<String>();
 ArrayList<Long> times = new ArrayList<Long>();
 ArrayList<Integer> findings = new ArrayList<Integer>();
-int n = 100000000;
+static int n = 100000000;
 int numberContainer[];
 int largest;
 int rest, pl, l;
@@ -27,7 +27,9 @@ Thread [] t = new Thread[cq];
 public static void main (String [] args) {
     if (args.length > 0) cq = Integer.parseInt(args[0]);
     else cq = Runtime.getRuntime().availableProcessors();
+    if (args.length > 1) n = Integer.parseInt(args[1]);
     System.out.println("Running with " + cq + " threads.");
+    System.out.println("Testing " + n + " integers.");
     new MaxValueOfArray();
 }
 
