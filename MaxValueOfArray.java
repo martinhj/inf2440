@@ -1,3 +1,9 @@
+// Warning: This code is written to test performance in parallel vs sequential
+// algorithms. It's not precise as it will not go through all of the values if
+// there is a remainder when the number of values are devided with number of
+// threads.
+
+
 // rapportinfo i bånn av fila.
 // obs på hvor en måler hvor lang tid det tar!
 // RB1:Test å sette runners[i].start(); i samme forløkka som trådene startes opp
