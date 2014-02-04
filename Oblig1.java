@@ -22,11 +22,21 @@ class Oblig1 {
         new Oblig1();
     }
     Oblig1() {
-        ns = new int[c];
-        generateNumbers();
-        iSortSeq(ns, 0, 99);
-        for (int n: ns)
-            System.out.println(n);
+        /* ns = new int[c]; */
+        /* generateNumbers(); */
+        ns = new int[12];
+        ns[0] = 3; ns[1] = 4; ns[2] = 1; ns[3] = 5;
+        ns[4] = 3; ns[5] = 4; ns[6] = 1; ns[7] = 5;
+        ns[8] = 3; ns[9] = 4; ns[10] = 1; ns[11] = 5;
+        int t = 0;
+        for (int n: ns) {
+            System.out.println(t++ + " : " + n);
+        }
+        iSortSeqWrap(ns);
+        t = 0;
+        for (int n: ns) {
+            System.out.println(t++ + " : " + n);
+        }
     }
 
 void generateNumbers() {
@@ -34,6 +44,36 @@ void generateNumbers() {
         ns[i] = randomg.nextInt(MAX_VALUE);
     }
 } //end generateNumbers
+
+/**
+ * Etter at denne har kjørt er de 50 første sortert.
+ */
+// ser ut til at den sorterer greit opp til 43 (44)?
+void iSortSeqWrap(int[] a) {
+    iSortSeqRev(a, 0, 11);
+}
+
+void iSortSeqRev(int[] a, int v, int h) {
+// 50 første
+// motsatt rekkefølge som eksempelet
+// putt inn eventuelle større verdier inn i de øverste 50
+
+// innstikkssortering, stigende rekkefølge skal være synkende rekkefølge
+// (0..49)
+    int i, t;
+    for (int k=h; k > v; k--) {
+        t = a[k-1];
+        System.out.println("k: " + k);
+        System.out.println("t: " + t); 
+        i = k;
+        while (i > v && a[i] < t) {
+            System.out.println(a[i] + " < " + t);
+            a[i-1] = a[i];
+            i++;
+        }
+        a[i-1] = t;
+    } // end for k
+} // end insertSort
 
 void iSortSeq(int[] a, int v, int h) {
 // 50 første
