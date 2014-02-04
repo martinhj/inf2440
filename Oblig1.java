@@ -66,10 +66,10 @@ void iSortSeqRev(int[] a, int v, int h) {
         System.out.println("k: " + k);
         System.out.println("t: " + t); 
         i = k;
-        while (i > v && a[i] < t) {
-            System.out.println(a[i] + " < " + t);
+        while (i > v && a[i] < t && i > 1) {
+            System.out.println(i + ": " + a[i] + " < " + t);
             a[i-1] = a[i];
-            i++;
+            i--;
         }
         a[i-1] = t;
     } // end for k
