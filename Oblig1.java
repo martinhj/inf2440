@@ -22,12 +22,12 @@ class Oblig1 {
         new Oblig1();
     }
     Oblig1() {
-        /* ns = new int[c]; */
-        /* generateNumbers(); */
-        ns = new int[12];
-        ns[0] = 3; ns[1] = 4; ns[2] = 1; ns[3] = 5;
-        ns[4] = 3; ns[5] = 4; ns[6] = 1; ns[7] = 5;
-        ns[8] = 3; ns[9] = 4; ns[10] = 1; ns[11] = 5;
+        ns = new int[c];
+        generateNumbers();
+        /* ns = new int[12]; */
+        /* ns[0] = 3; ns[1] = 4; ns[2] = 1; ns[3] = 5; */
+        /* ns[4] = 3; ns[5] = 4; ns[6] = 1; ns[7] = 5; */
+        /* ns[8] = 3; ns[9] = 4; ns[10] = 1; ns[11] = 5; */
         int t = 0;
         for (int n: ns) {
             System.out.println(t++ + " : " + n);
@@ -50,7 +50,7 @@ void generateNumbers() {
  */
 // ser ut til at den sorterer greit opp til 43 (44)?
 void iSortSeqWrap(int[] a) {
-    iSortSeqRev(a, 0, 11);
+    iSortSeqRev(a, 0, 49);
 }
 
 void iSortSeqRev(int[] a, int v, int h) {
