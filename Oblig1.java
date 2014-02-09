@@ -38,7 +38,6 @@ class Oblig1 {
             System.out.println(t++ + " : " + n);
         }
     }
-
 void generateNumbers() {
     for (int i = 0; i < c; i++) {
         ns[i] = randomg.nextInt(MAX_VALUE);
@@ -50,48 +49,39 @@ void generateNumbers() {
  */
 // ser ut til at den sorterer greit opp til 43 (44)?
 void iSortSeqWrap(int[] a) {
-    iSortSeqRev(a, 0, 49);
+    iSortSeq(a, 0, 10);
 }
-
-void iSortSeqRev(int[] a, int v, int h) {
-// 50 første
-// motsatt rekkefølge som eksempelet
-// putt inn eventuelle større verdier inn i de øverste 50
-
-// innstikkssortering, stigende rekkefølge skal være synkende rekkefølge
-// (0..49)
-    int i, t;
-    for (int k=h; k > v; k--) {
-        t = a[k-1];
-        System.out.println("k: " + k);
-        System.out.println("t: " + t); 
-        i = k;
-        while (i > v && a[i] < t && i > 1) {
-            System.out.println(i + ": " + a[i] + " < " + t);
-            a[i-1] = a[i];
-            i--;
-        }
-        a[i-1] = t;
-    } // end for k
-} // end insertSort
-
+/**
+ * Sorterer de 50 første verdiene i arrayen a.
+ */
 void iSortSeq(int[] a, int v, int h) {
+// v og h brukes ikke nå i denne implementasjonen.
 // 50 første
-// motsatt rekkefølge som eksempelet
-// putt inn eventuelle større verdier inn i de øverste 50
 
 // innstikkssortering, stigende rekkefølge skal være synkende rekkefølge
 // (0..49)
-    int i, t;
-    for (int k=v; k < h; k++) {
-        t = a[k+1];
-        i = k;
-        while (i > v && a[i] > t) {
-            a[i+1] = a[i];
-            i--;
-        }
-        a[i+1] = t;
-    } // end for k
-} // end insertSort
+    /* int i, t; */
+    /* for (int k=v; k < h; k++) { */
+    /*     t = a[k+1]; */
+    /*     i = k; */
+    /*     while (i > v && a[i] > t) { */
+    /*         a[i+1] = a[i]; */
+    /*         i--; */
+    /*     } */
+    /*     a[i+1] = t; */
+    /* } // end for k */
 
+    int j;
+    int temp;
+    for (int i = 49; i >= 0; i--) {
+        j = i;
+        temp = a[i];
+        while(j < 49 && temp < a[j + 1]) {
+            a[j] = a[j + 1];
+            j++;
+        } // end j
+        a[j] = temp;
+    } // end i
+
+} // end insertSort
 } // end class Oblig1
