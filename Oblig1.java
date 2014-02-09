@@ -1,5 +1,6 @@
 // TODO:
 // Timing.
+// Sammenligne med Array.sort - eller noe...
 //
 // generere random tall til array
 // starte med en array på 100 (sekvensiell, blir for lite å parallellisere)
@@ -13,33 +14,32 @@
 // teste mot sekvensielt å flette sammen alle på en gang.
 
 import java.util.Random;
+import java.util.Arrays;
 //import java.util.Integer;
 // Bedre enn S > 1
 class Oblig1 {
     Random randomg = new Random();
-    static int c = 100;
+    static int c = 10000;
     final static int MAX_VALUE = 1000;
-    int ns[];
+    int ns[], ns2[];
     public static void main(String [] args) {
         if (args.length > 0) c = Integer.parseInt(args[0]);
         new Oblig1();
     }
     Oblig1() {
         ns = new int[c];
+        ns2 = new int[c];
         generateNumbers();
         /* ns = new int[12]; */
         /* ns[0] = 3; ns[1] = 4; ns[2] = 1; ns[3] = 5; */
         /* ns[4] = 3; ns[5] = 4; ns[6] = 1; ns[7] = 5; */
         /* ns[8] = 3; ns[9] = 4; ns[10] = 1; ns[11] = 5; */
-        int t = 0;
-        for (int n: ns) {
-            System.out.println(t++ + " : " + n);
-        }
-        iSortSeqWrap(ns);
-        t = 0;
-        for (int n: ns) {
-            System.out.println(t++ + " : " + n);
-        }
+        ns2 = ns.clone();
+        iSortSeq(ns, 0, 0);
+        iSortRest(ns);
+        Arrays.sort(ns2);
+        for (int n = 70; n >= 0; n--)
+            System.out.println(n + " : " + ns[n] + " : " + ns2[c - 1 - n]);
     }
 void generateNumbers() {
     for (int i = 0; i < c; i++) {
@@ -47,13 +47,6 @@ void generateNumbers() {
     }
 } //end generateNumbers
 
-/**
- * Etter at denne har kjørt er de 50 første sortert.
- */
-// ser ut til at den sorterer greit opp til 43 (44)?
-void iSortSeqWrap(int[] a) {
-    iSortSeq(a, 0, 10);
-}
 /**
  * Sorterer de 50 første verdiene i arrayen a.
  */
@@ -87,4 +80,17 @@ void iSortSeq(int[] a, int v, int h) {
     } // end i
 
 } // end insertSort
+void iSortRest(int[] a) {
+    int temp, j;
+    for (int i = 50; i < c; i++) {
+        if (a[i] > a[49]) {
+            temp = a[i]; a[i] = a[49]; j = 48;
+            while(j >= 0 && temp > a[j]) {
+                a[j+1] = a[j];
+                j--;
+            }
+        a[j+1] = temp;
+        }
+    }
+}
 } // end class Oblig1
