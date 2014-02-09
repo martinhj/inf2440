@@ -1,3 +1,6 @@
+// TODO:
+// Timing.
+//
 // generere random tall til array
 // starte med en array på 100 (sekvensiell, blir for lite å parallellisere)
 // sortere 50 første sekvensielt
