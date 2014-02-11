@@ -2,6 +2,20 @@
 // Timing.
 // Sammenligne med Array.sort - eller noe...
 //
+//
+//
+//
+//  Arne Maus implementasjon:
+    /* int i, t; */
+    /* for (int k=v; k < h; k++) { */
+    /*     t = a[k+1]; */
+    /*     i = k; */
+    /*     while (i > v && a[i] > t) { */
+    /*         a[i+1] = a[i]; */
+    /*         i--; */
+    /*     } */
+    /*     a[i+1] = t; */
+    /* } // end for k */
 // generere random tall til array
 // starte med en array på 100 (sekvensiell, blir for lite å parallellisere)
 // sortere 50 første sekvensielt
@@ -19,7 +33,7 @@ import java.util.Arrays;
 // Bedre enn S > 1
 class Oblig1 {
     Random randomg = new Random();
-    static int c = 10000;
+    static int c = 1000000;
     final static int MAX_VALUE = 1000;
     int ns[], ns2[];
     public static void main(String [] args) {
@@ -38,35 +52,20 @@ class Oblig1 {
         iSortSeq(ns, 0, 0);
         iSortRest(ns);
         Arrays.sort(ns2);
-        for (int n = 70; n >= 0; n--)
-            System.out.println(n + " : " + ns[n] + " : " + ns2[c - 1 - n]);
+        for (int n = 49; n >= 0; n--) {
+            System.out.println(n + " : " + (ns[n] == ns2[c - 1 - n]));
+        }
     }
 void generateNumbers() {
     for (int i = 0; i < c; i++) {
         ns[i] = randomg.nextInt(MAX_VALUE);
     }
 } //end generateNumbers
-
 /**
  * Sorterer de 50 første verdiene i arrayen a.
  */
 void iSortSeq(int[] a, int v, int h) {
 // v og h brukes ikke nå i denne implementasjonen.
-// 50 første
-
-// innstikkssortering, stigende rekkefølge skal være synkende rekkefølge
-// (0..49)
-    /* int i, t; */
-    /* for (int k=v; k < h; k++) { */
-    /*     t = a[k+1]; */
-    /*     i = k; */
-    /*     while (i > v && a[i] > t) { */
-    /*         a[i+1] = a[i]; */
-    /*         i--; */
-    /*     } */
-    /*     a[i+1] = t; */
-    /* } // end for k */
-
     int j;
     int temp;
     for (int i = 49; i >= 0; i--) {
@@ -78,7 +77,6 @@ void iSortSeq(int[] a, int v, int h) {
         } // end j
         a[j] = temp;
     } // end i
-
 } // end insertSort
 void iSortRest(int[] a) {
     int temp, j;
