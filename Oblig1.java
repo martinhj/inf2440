@@ -56,8 +56,11 @@ class Oblig1 {
         for (int i = 0; i < 9; i++) {
             ns = nstemp.clone();
             startTime = System.nanoTime();
-            iSortSeq(ns, 0, 0);
-            iSortRest(ns);
+            iSortWrap(ns, 0, c);
+            /* iSortSeq(ns, 0, 49); */
+            /* iSortRest(ns); */
+            for (int j = 0; j < 50; j++)
+                System.out.println(j + ": " + ns[j]);
             itimes.add(time = System.nanoTime() - startTime);
         }
         Collections.sort(itimes);
@@ -85,6 +88,10 @@ void generateNumbers() {
 /**
  * Sorterer de 50 første verdiene i arrayen a.
  */
+void iSortWrap(int[] a, int v, int h) {
+    iSortSeq(a, v, h);
+    iSortRest(a, v, h);
+}
 void iSortSeq(int[] a, int v, int h) {
 // v og h brukes ikke nå i denne implementasjonen.
     /* int i, t; */
@@ -98,27 +105,28 @@ void iSortSeq(int[] a, int v, int h) {
     /*     a[i+1] = t; */
     /* } // end for k */
     int j;
-    int temp;
-    for (int i = 49; i >= 0; i--) {
+    int t;
+    for (int i = v + 49; i >= v; i--) {
+        System.out.println(i);
         j = i;
-        temp = a[i];
-        while(j < 49 && temp < a[j + 1]) {
+        t = a[i];
+        while(j < h && t < a[j + 1]) {
             a[j] = a[j + 1];
             j++;
         } // end j
-        a[j] = temp;
+        a[j] = t;
     } // end i
 } // end insertSort
-void iSortRest(int[] a) {
-    int temp, j;
-    for (int i = 50; i < c; i++) {
-        if (a[i] > a[49]) {
-            temp = a[i]; a[i] = a[49]; j = 48;
-            while(j >= 0 && temp > a[j]) {
+void iSortRest(int[] a, int l, int r) {
+    int t, j;
+    for (int i = l + 50; i < r; i++) {
+        if (a[i] > a[l + 49]) {
+            t = a[i]; a[i] = a[l + 49]; j = l + 48;
+            while(j >= l && t > a[j]) {
                 a[j+1] = a[j];
                 j--;
             }
-        a[j+1] = temp;
+        a[j+1] = t;
         }
     }
 }
