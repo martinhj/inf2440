@@ -93,24 +93,13 @@ void iSortWrap(int[] a, int v, int h) {
     iSortRest(a, v, h);
 }
 void iSortSeq(int[] a, int v, int h) {
-// v og h brukes ikke nå i denne implementasjonen.
-    /* int i, t; */
-    /* for (int k=v; k < h; k++) { */
-    /*     t = a[k+1]; */
-    /*     i = k; */
-    /*     while (i > v && a[i] > t) { */
-    /*         a[i+1] = a[i]; */
-    /*         i--; */
-    /*     } */
-    /*     a[i+1] = t; */
-    /* } // end for k */
     int j;
     int t;
     for (int i = v + 49; i >= v; i--) {
         System.out.println(i);
         j = i;
         t = a[i];
-        while(j < h && t < a[j + 1]) {
+        while(j < v + 49 && t < a[j + 1]) {
             a[j] = a[j + 1];
             j++;
         } // end j
