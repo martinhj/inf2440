@@ -37,7 +37,7 @@ import java.util.concurrent.CyclicBarrier;
 class Oblig1 {
     Random randomg = new Random();
 	CyclicBarrier b;
-    static int c = 1000;
+    static int c = 100000000;
 	static int q = Runtime.getRuntime().availableProcessors();
     final static int MAX_VALUE = 1000;
     ArrayList<Long> itimes = new ArrayList<Long>();
@@ -56,7 +56,7 @@ class Oblig1 {
         ns2 = ns.clone();
         nstemp = ns.clone();
         long time = 0;
-        long startTime = System.nanoTime();
+        long startTime;
         for (int i = 0; i < 9; i++) {
             ns = nstemp.clone();
             startTime = System.nanoTime();
@@ -76,9 +76,6 @@ class Oblig1 {
         for (int n = 49; n >= 0; n--) {
             if (ns[n] != ns2[c - 1 - n]) System.out.println(false);
         }
-        System.out.print("Speedup S: ");
-        System.out.println(
-                String.format("%2.02f", (float)atimes.get(4)/itimes.get(4)));
 		for (int i = 0; i < 9; i++) {
 			ns = nstemp.clone();
 			startTime = System.nanoTime();
@@ -87,6 +84,9 @@ class Oblig1 {
 		}
 		Collections.sort(ptimes);
         System.out.println("mean: " + (ptimes.get(4) / 1000000.0) + "ms");
+        System.out.print("Speedup S: ");
+        System.out.println(
+                String.format("%2.02f", (float)itimes.get(4)/ptimes.get(4)));
     }
 void generateNumbers() {
     for (int i = 0; i < c; i++) {
@@ -142,6 +142,7 @@ class SortWorker implements Runnable {
 		this.index = index;
 	}
 	public void run() {
+		iSortWrap(ns, c/q*index, (c/q*(index + 1))-1);
         try {
             b.await();
         } catch (Exception e) {return;}
