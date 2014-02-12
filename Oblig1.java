@@ -57,8 +57,6 @@ class Oblig1 {
             ns = nstemp.clone();
             startTime = System.nanoTime();
             iSortWrap(ns, 0, c);
-            /* iSortSeq(ns, 0, 49); */
-            /* iSortRest(ns); */
             for (int j = 0; j < 50; j++)
                 System.out.println(j + ": " + ns[j]);
             itimes.add(time = System.nanoTime() - startTime);
@@ -88,24 +86,24 @@ void generateNumbers() {
 /**
  * Sorterer de 50 første verdiene i arrayen a.
  */
-void iSortWrap(int[] a, int v, int h) {
-    iSortSeq(a, v, h);
-    iSortRest(a, v, h);
+void iSortWrap(int[] a, int l, int r) {
+    iSortSeq(a, l, r);
+    iSortRest(a, l, r);
 }
-void iSortSeq(int[] a, int v, int h) {
+void iSortSeq(int[] a, int l, int r) {
     int j;
     int t;
-    for (int i = v + 49; i >= v; i--) {
+    for (int i = l + 49; i >= l; i--) {
         System.out.println(i);
         j = i;
         t = a[i];
-        while(j < v + 49 && t < a[j + 1]) {
+        while(j < l + 49 && t < a[j + 1]) {
             a[j] = a[j + 1];
             j++;
         } // end j
         a[j] = t;
     } // end i
-} // end insertSort
+} // end iSortSeq
 void iSortRest(int[] a, int l, int r) {
     int t, j;
     for (int i = l + 50; i < r; i++) {
@@ -118,11 +116,12 @@ void iSortRest(int[] a, int l, int r) {
         a[j+1] = t;
         }
     }
-}
+} // end iSortRest
 } // end class Oblig1
 
 
-// en tråd får en indeks, utfra denne regnes hvilket område som skal jobbes på i array.
+// en tråd får en indeks, utfra denne regnes hvilket område som skal jobbes på
+// i array.
 // Skrive om metodene slik at de tar imot argumenter for start og stopp.
 // Ta inn argumenter til programmet for å styre antall tråder og antall tall.
 // iSort tar inn argument for hvor den skal starte, så skal den sortere 50 derfra.
