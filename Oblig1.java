@@ -31,14 +31,18 @@ import java.util.Random;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.CyclicBarrier;
 //import java.util.Integer;
 // Bedre enn S > 1
 class Oblig1 {
     Random randomg = new Random();
+	CyclicBarrier b;
     static int c = 1000;
+	static int q = Runtime.getRuntime().availableProcessors();
     final static int MAX_VALUE = 1000;
     ArrayList<Long> itimes = new ArrayList<Long>();
     ArrayList<Long> atimes = new ArrayList<Long>();
+    ArrayList<Long> ptimes = new ArrayList<Long>();
     int ns[], ns2[], nstemp[];
     public static void main(String [] args) {
         if (args.length > 0) c = Integer.parseInt(args[0]);
@@ -57,8 +61,6 @@ class Oblig1 {
             ns = nstemp.clone();
             startTime = System.nanoTime();
             iSortWrap(ns, 0, c);
-            for (int j = 0; j < 50; j++)
-                System.out.println(j + ": " + ns[j]);
             itimes.add(time = System.nanoTime() - startTime);
         }
         Collections.sort(itimes);
@@ -77,6 +79,14 @@ class Oblig1 {
         System.out.print("Speedup S: ");
         System.out.println(
                 String.format("%2.02f", (float)atimes.get(4)/itimes.get(4)));
+		for (int i = 0; i < 9; i++) {
+			ns = nstemp.clone();
+			startTime = System.nanoTime();
+			iSortPar(ns);
+			ptimes.add(time = System.nanoTime() - startTime);
+		}
+		Collections.sort(ptimes);
+        System.out.println("mean: " + (ptimes.get(4) / 1000000.0) + "ms");
     }
 void generateNumbers() {
     for (int i = 0; i < c; i++) {
@@ -94,7 +104,6 @@ void iSortSeq(int[] a, int l, int r) {
     int j;
     int t;
     for (int i = l + 49; i >= l; i--) {
-        System.out.println(i);
         j = i;
         t = a[i];
         while(j < l + 49 && t < a[j + 1]) {
@@ -117,6 +126,28 @@ void iSortRest(int[] a, int l, int r) {
         }
     }
 } // end iSortRest
+void iSortPar(int[] a) {
+	b = new CyclicBarrier(q + 1);
+	for (int i = 0; i < q; i++) 
+		new Thread(new SortWorker(i)).start();
+    try {
+        b.await();
+    } catch (Exception e) {return;}
+
+} // end iSortPar
+
+class SortWorker implements Runnable {
+	int index;
+	SortWorker(int index) {
+		this.index = index;
+	}
+	public void run() {
+        try {
+            b.await();
+        } catch (Exception e) {return;}
+	}
+
+} // end class SortWorker
 } // end class Oblig1
 
 
