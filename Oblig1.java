@@ -1,39 +1,12 @@
 // TODO:
-// Timing.
-// Sammenligne med Array.sort - eller noe...
-//
-//
-//
-//
-//  Arne Maus implementasjon:
-    /* int i, t; */
-    /* for (int k=v; k < h; k++) { */
-    /*     t = a[k+1]; */
-    /*     i = k; */
-    /*     while (i > v && a[i] > t) { */
-    /*         a[i+1] = a[i]; */
-    /*         i--; */
-    /*     } */
-    /*     a[i+1] = t; */
-    /* } // end for k */
-// generere random tall til array
-// starte med en array på 100 (sekvensiell, blir for lite å parallellisere)
-// sortere 50 første sekvensielt
-// sette inn de som er større i resten av arrayen på de 50 første plassene.
-//
-
-// parallellisering:
-// flette sammen to og to? så fort to er ferdig bruke den ene av disse trådene
-// til å begynne å flette.
-// teste mot sekvensielt å flette sammen alle på en gang.
+// Merge
+// Sammenligne med arrays.sort
 
 import java.util.Random;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.CyclicBarrier;
-//import java.util.Integer;
-// Bedre enn S > 1
 class Oblig1 {
     Random randomg = new Random();
 	CyclicBarrier b;
@@ -150,12 +123,3 @@ class SortWorker implements Runnable {
 
 } // end class SortWorker
 } // end class Oblig1
-
-
-// en tråd får en indeks, utfra denne regnes hvilket område som skal jobbes på
-// i array.
-// Skrive om metodene slik at de tar imot argumenter for start og stopp.
-// Ta inn argumenter til programmet for å styre antall tråder og antall tall.
-// iSort tar inn argument for hvor den skal starte, så skal den sortere 50 derfra.
-// iSortRest tar inn samme argument for hvor den skal jobbe i arrayen og jobber mot de
-// 50 første.
