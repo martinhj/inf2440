@@ -1,0 +1,7 @@
+# Forelesning uke 5 14.2.2014
+## Parallellisere C etter rader er enda bdre enn etter kolonner. 
+## Raskere enn synchronized:
+(5x raskere enn synchronized):
+- ReentrantLock (java.util.concurrent.locks.\*;)
+- Atomic (java.util.concurrent.atomic.\*;)
+men: lokale verdier som så synkroniseres (eller annen låsing) per
