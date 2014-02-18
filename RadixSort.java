@@ -1,6 +1,9 @@
 // inf2440 v2014 ukeoppgave 5
-// n = 
-// k = 
+//
+//
+// Oppgave 3 - utgangspunkt i numSif???
+// n = lengden på array
+// k = kjener (t er == kjerner her)
 import java.util.Random;
 import java.util.concurrent.CyclicBarrier;
 class RadixSort {
@@ -9,7 +12,7 @@ static int cores, t, c;
 int[][] allCount;
 int[] sumCount, a;
 Random randomg; 
-CyclicBarrier bwait, bfinish;
+CyclicBarrier bsync, bfinish;
 public static void main(String[] args) {
     new RadixSort();
 }
@@ -22,7 +25,7 @@ void initialize() {
     t = cores;
     allCount = new int[t][];
     sumCount = new int[t];
-    c = 10000;
+    c = 10001;
     a = new int[c];
     randomg = new Random();
     generateNumbers();
@@ -32,9 +35,14 @@ void generateNumbers() {
         a[i] = randomg.nextInt(MAX_VALUE);
     }
 } //end generateNumbers
-void splitA(int[] a, int i) {
+void splitA(int[] a, int i) {
     // se oppgave 2 i ukeoppgave 5
-   /* for (; i <   */
+    /* for (; i <   */
+    if (i == t - 1) 
+        System.out.println(i + ": start: " + c/t*i + " stop: " + (c-1));
+    else
+        System.out.println(i + ": start: " + c/t*i + " stop: " + (c/t*(i+1)-1));
+
 }
 void parwork() {
 	bwait = new CyclicBarrier(t + 1);
@@ -42,21 +50,25 @@ void parwork() {
 	for (int i = 0; i < t; i++) 
 		new Thread(new ParWorker(i)).start();
     try {
-        bwait.await();
+        bsync.await();
         bfinish.await();
     } catch (Exception e) {return;}
 } // end parwork
 class ParWorker implements Runnable {
     int index;
+    // numSif ???
+    //int [] count = new int[numSif];
     ParWorker(int index) {
         this.index = index;
     }
     public void run() {
         System.out.println(index + "test");
         try {
-            bwait.await();
+            splitA(a, index);
+            bsync.await();
             bfinish.await();
         } catch (Exception e) {return;}
+        //allCount[i] = count;
     }
 } // end ParWorker class
 } // end RadixSort class
