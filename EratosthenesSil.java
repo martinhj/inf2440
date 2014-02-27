@@ -38,35 +38,17 @@ public class EratosthenesSil {
 		setAllPrime();
         printAllPrimes();
         unsetSomePrimes();
-        generatePrimesByEratosthenes();
+        unsetSomePrimes();
+        //generatePrimesByEratosthenes();
         printAllPrimes();
 
       } // end konstruktor EratostenesSil
 
-    // slett denne til slutt!!
-    void printAllNumbs() {
-        System.out.println("bitArr.length: " + bitArr.length);
-        for (int i = 0; i < bitArr.length; i++) {
-            System.out.println("byte [" + i + "]: " + bitArr[i]);
-            for (int j = 0; j < 7; j++) {
-                System.out.println("n: " + ((i*14)+(j*2+1)));
-            }
-        }
-    }
+    // for testing. 
     void unsetSomePrimes() {
-        for (int i = 0; i < maxNum; i++) {
-            byte mybyte = bitArr[i/14];
-            if (i % 10 == 3) {
-                System.out.println("Removing: " + i);
-                System.out.println(bitArr[i/14]);
-                System.out.println("arrPos: " + (i/14));
-                System.out.println("pos: " + ((i - (14 * (i/14))) / 2));
-                System.out.println(mybyte | (1 << (i - (14 * (i/14))) / 2));
-                bitArr[i/14] = (byte)(mybyte & ~(1 << (i - (14 * (i/14))) /2));
-                System.out.println(bitArr[i/14]);
-            }
-        }
-    }
+        for (int i = 0; i < maxNum; i++) if (i % 10 == 3) crossOut(i);
+    } // end unsetSomePrimes
+
     void setAllPrime() {
         for (int i = 0; i < bitArr.length; i++) {
             bitArr[i] = (byte)127;
@@ -76,24 +58,21 @@ public class EratosthenesSil {
     void crossOut(int i) {
        // set as not prime- cross out (set to 0)  bit represening 'int i'
              // ** <din kode her>
-	   } //
+        bitArr[i/14] = (byte)(bitArr[i/14] & ~(1 << i%14/2));
+        boolean debug = false;
+        if (debug) System.out.println("removing " + i);
+        if (debug) System.out.println("arrPlass:" + (i/14));
+        if (debug) System.out.println("plass:" + ((i - (14*(i/14))) /2));
+	} // end crossOut
 
     boolean isPrime (int i) {
         // <din kode her, husk å teste særskilt for 2 (primtall) og andre
         // partall (ikke)>
-
-        // hvis i er 13:
-        // plass 7(6) i bitArr[0] byte
-        // 13 / 14 = 0 => bitArr[0].
-        // 13 / 2 = 6 (bit [6] i bitArr[0]. Bingo!
-        // hvis i er 15:
-        // plass 1(0) i bitArr[1] byte
-        // 15 / 14 = 1 => bitArr[1].
-        // 15 - (14 * (15/14)) / 2 = 0
-        // Altså i - (14 * (i / 14) / 2
-        if ((bitArr[i / 14] >> ((i - (14 * (i/14))) / 2) & 1) == 1) return true;
+        if (i == 2) return true;
+        if (i%2 == 0) return false;
+        if ((bitArr[i / 14] >> i%14/2 & 1) == 1) return true;
         return false; 
-    }
+    } // end isPrime
 
     ArrayList<Long> factorize (long num) {
 		  ArrayList <Long> fakt = new ArrayList <Long>();
@@ -113,7 +92,6 @@ public class EratosthenesSil {
 	 void printAllPrimes(){
 		 for ( int i = 2; i <= maxNum; i++)
 		  if (isPrime(i)) System.out.println(" "+i);
-
 	 }
 
 	  void generatePrimesByEratosthenes() {
