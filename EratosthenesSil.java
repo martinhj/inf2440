@@ -43,6 +43,7 @@ public class EratosthenesSil {
     /* unsetSomePrimes(); */
     generatePrimesByEratosthenes();
     printAllPrimes();
+    System.out.println("____" + countAllPrimes());
 
   } // end konstruktor EratostenesSil
 
@@ -66,7 +67,7 @@ public class EratosthenesSil {
     // set as not prime- cross out (set to 0)  bit represening 'int i'
     // ** <din kode her>
     bitArr[i/14] = (byte)(bitArr[i/14] & ~(1 << i%14/2));
-    boolean debug = true;
+    boolean debug = false;
     if (debug) System.out.println("removing " + i);
     if (debug) System.out.println("arrPlass:" + (i/14));
     if (debug) System.out.println("plass:" + ((i - (14*(i/14))) /2));
@@ -86,7 +87,6 @@ public class EratosthenesSil {
 
   boolean checkPrime (int n) {
         for (int i = 2; i < Math.sqrt(n); i++) if (n % i == 0) {
-          System.out.println(n + " ikke prim!");
           return false;
         }
         return true;
@@ -107,6 +107,12 @@ public class EratosthenesSil {
     return  -1;
   } // end nextTrue
 
+  int countAllPrimes() {
+    int c = 0;
+    for (int i = 2; i <= maxNum; i++)
+      if (isPrime(i)) c++;
+    return c;
+  }
 
   void printAllPrimes(){
     for ( int i = 2; i <= maxNum; i++)
@@ -114,16 +120,24 @@ public class EratosthenesSil {
   }
 
   void generatePrimesByEratosthenes() {
-    // krysser av alle  oddetall i 'bitArr[]' som ikke er primtall (setter de =0)
-    boolean debug = true;
+    // krysser av alle  oddetall i 'bitArr[]' som ikke er primtall (setter de
+    // =0)
+    boolean debug = false;
     crossOut(1);      // 1 is not a prime
     // sjekker ikke partall
-    for (int i = 3; i < maxNum; i+=2) {
-      // hvis det ikke er registrert som prime, hva gjør vi da? 
-      // Dele på alle primes til nå (opp til i da vel?)
+
+    for (int i = 3; i <= Math.sqrt(maxNum); i+=2) {
       if (debug) System.out.print("sjekker " + i);
-      if (debug) System.out.println("   ..." + isPrime(i));
-        if (!checkPrime(i)) crossOut(i);
+      if (debug) System.out.println("   ..." + checkPrime(i));
+      /* if (!checkPrime(i))  */
+      if (checkPrime(i))
+        for (int j = 3; j <= maxNum / i; j+=2) {
+          if (debug) System.out.println("::: " + i + "*" +j + " = " + i*j);
+          crossOut(i*j);
+        }
+
+      if (i == 2) i = 1;
+      /* if (!checkPrime(i)) crossOut(i); */
     }
 
     // < din Kode her, kryss ut multipla av alle primtall <= sqrt(maxNum),
