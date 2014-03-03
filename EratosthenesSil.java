@@ -28,7 +28,7 @@ public class EratosthenesSil {
         String s;
         s = "Use as $ java ErastosthenesSil n, where n = max num";
         System.out.println(s);
-        if (args.length > 1) maxNum = Integer.parseInt(args[0]);
+        if (args.length > 0) maxNum = Integer.parseInt(args[0]);
         EratosthenesSil es = new EratosthenesSil(maxNum);
     }
 
@@ -63,6 +63,7 @@ public class EratosthenesSil {
         if (debug) System.out.println("removing " + i);
         if (debug) System.out.println("arrPlass:" + (i/14));
         if (debug) System.out.println("plass:" + ((i - (14*(i/14))) /2));
+        if (debug) System.out.println("plass:" + (i%14/2) );
 	} // end crossOut
 
     boolean isPrime (int i) {
