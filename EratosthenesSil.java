@@ -37,11 +37,11 @@ public class EratosthenesSil {
     this.maxNum = maxNum;
     bitArr = new byte [(maxNum/14)+1];
     setAllPrime();
-    printAllPrimes();
+    /* printAllPrimes(); */
     // do not use 'unsetSomePrimes()' while testing Eratosthenes method.
-    unsetSomePrimes();
-    unsetSomePrimes();
-    //generatePrimesByEratosthenes();
+    /* unsetSomePrimes(); */
+    /* unsetSomePrimes(); */
+    generatePrimesByEratosthenes();
     printAllPrimes();
 
   } // end konstruktor EratostenesSil
@@ -66,7 +66,7 @@ public class EratosthenesSil {
     // set as not prime- cross out (set to 0)  bit represening 'int i'
     // ** <din kode her>
     bitArr[i/14] = (byte)(bitArr[i/14] & ~(1 << i%14/2));
-    boolean debug = false;
+    boolean debug = true;
     if (debug) System.out.println("removing " + i);
     if (debug) System.out.println("arrPlass:" + (i/14));
     if (debug) System.out.println("plass:" + ((i - (14*(i/14))) /2));
@@ -83,6 +83,15 @@ public class EratosthenesSil {
     if ((bitArr[i / 14] >> i%14/2 & 1) == 1) return true;
     return false; 
   } // end isPrime
+
+  boolean checkPrime (int n) {
+        for (int i = 2; i < Math.sqrt(n); i++) if (n % i == 0) {
+          System.out.println(n + " ikke prim!");
+          return false;
+        }
+        return true;
+
+  }
 
   ArrayList<Long> factorize (long num) {
     ArrayList <Long> fakt = new ArrayList <Long>();
@@ -106,7 +115,16 @@ public class EratosthenesSil {
 
   void generatePrimesByEratosthenes() {
     // krysser av alle  oddetall i 'bitArr[]' som ikke er primtall (setter de =0)
+    boolean debug = true;
     crossOut(1);      // 1 is not a prime
+    // sjekker ikke partall
+    for (int i = 3; i < maxNum; i+=2) {
+      // hvis det ikke er registrert som prime, hva gjør vi da? 
+      // Dele på alle primes til nå (opp til i da vel?)
+      if (debug) System.out.print("sjekker " + i);
+      if (debug) System.out.println("   ..." + isPrime(i));
+        if (!checkPrime(i)) crossOut(i);
+    }
 
     // < din Kode her, kryss ut multipla av alle primtall <= sqrt(maxNum),
     // og start avkryssingen av neste primtall p med p*p>
