@@ -11,13 +11,13 @@
 //--------------------------------------------------------
 import java.util.*;
 /**
-* Implements the bitArray of length 'maxNum' [0..bitLen ]
-*   1 - true (is prime number)
-*   0 - false
-*  can be used up to 2 G Bits (integer range)
-*  Stores info on prime/not-prime in bits 0..6 in each byte
-*  (does not touch the sign-bit - bit7)
-*/
+ * Implements the bitArray of length 'maxNum' [0..bitLen ]
+ *   1 - true (is prime number)
+ *   0 - false
+ *  can be used up to 2 G Bits (integer range)
+ *  Stores info on prime/not-prime in bits 0..6 in each byte
+ *  (does not touch the sign-bit - bit7)
+ */
 
 public class EratosthenesSil {
   // bitArr[0] represents the 7 integers:  1,3,5,...,13, and so on
