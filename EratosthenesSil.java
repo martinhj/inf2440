@@ -17,9 +17,12 @@ import java.util.*;
 
 public class EratosthenesSil {
   // bitArr[0] represents the 7 integers:  1,3,5,...,13, and so on
-  byte [] bitArr ;           
+  boolean debug = false;
+  byte [] bitArr;
+  long removes = 0;
   // all primes in this bit-array is <= maxNum
   int  maxNum;
+  long faNum;
   // kanskje trenge du disse
   final int [] bitMask = {1,2,4,8,16,32,64};
   final int [] bitMask2 ={255-1,255-2,255-4,255-8,255-16,255-32,255-64};
@@ -35,22 +38,20 @@ public class EratosthenesSil {
 
   EratosthenesSil (int maxNum) {
     this.maxNum = maxNum;
+    this.faNum = (long) maxNum * maxNum;
     bitArr = new byte [(maxNum/14)+1];
     setAllPrime();
-    /* printAllPrimes(); */
-    // do not use 'unsetSomePrimes()' while testing Eratosthenes method.
-    /* unsetSomePrimes(); */
-    /* unsetSomePrimes(); */
     generatePrimesByEratosthenes();
-    printAllPrimes();
+    if (debug) printAllPrimes();
+    System.out.println(">" + nextPrime(43));
     System.out.println("____" + countAllPrimes());
-
+    System.out.println("Removed: " + removes);
+    System.out.println("factorizeing " + faNum);
+    ArrayList<Long> al = factorize(faNum);
+    for (long l: al)
+      System.out.print(l + " * ");
+    System.exit(0);
   } // end konstruktor EratostenesSil
-
-  // only for testing. 
-  void unsetSomePrimes() {
-    for (int i = 0; i < maxNum; i++) if (i % 10 == 3) crossOut(i);
-  } // end unsetSomePrimes
 
   /**
     *
@@ -66,12 +67,12 @@ public class EratosthenesSil {
     //
     // set as not prime- cross out (set to 0)  bit represening 'int i'
     // ** <din kode her>
+    removes++;
     bitArr[i/14] = (byte)(bitArr[i/14] & ~(1 << i%14/2));
-    boolean debug = false;
     if (debug) System.out.println("removing " + i);
-    if (debug) System.out.println("arrPlass:" + (i/14));
-    if (debug) System.out.println("plass:" + ((i - (14*(i/14))) /2));
-    if (debug) System.out.println("plass:" + (i%14/2) );
+    /* if (debug) System.out.println("arrPlass:" + (i/14)); */
+    /* if (debug) System.out.println("plass:" + ((i - (14*(i/14))) /2)); */
+    /* if (debug) System.out.println("plass:" + (i%14/2) ); */
   } // end crossOut
 
   /** Returns true if number i is represented with a positive number in the 
@@ -86,24 +87,54 @@ public class EratosthenesSil {
   } // end isPrime
 
   boolean checkPrime (int n) {
-        for (int i = 2; i < Math.sqrt(n); i++) if (n % i == 0) {
-          return false;
-        }
-        return true;
-
+    for (int i = 2; i < Math.sqrt(n); i++) if (n % i == 0) {
+      return false;
+    }
+    return true;
   }
 
+  /**
+    *
+    */
+  /*
+   * Plassere denne i en egen klasse?
+   */
   ArrayList<Long> factorize (long num) {
     ArrayList <Long> fakt = new ArrayList <Long>();
     // <Ukeoppgave i Uke 7: din kode her>
-
-    return null;
+    int cp;
+    int n = nextPrime(0);
+    long facNum = num;
+    while (n < Math.sqrt(num) && facNum != 1) {
+      /* System.out.println("sjekker nå" + num); */
+      /* if (isPrime((int)num)) { */
+      /*   System.out.println("num isPrime!"); */
+      /*   break; */
+      /* } */
+      if (n == -1) {
+        System.out.println("N == " + n + "\n breaking...");
+        break;
+      }
+      if (debug) System.out.println("N : " + n);
+      if (debug) System.out.println("facNum : " + facNum);
+      if (facNum % n == 0) {
+        fakt.add((long) n);
+        facNum = facNum / n;
+        if (debug) System.out.println("adding " + n);
+        if (debug) System.out.println("num = " + facNum);
+      } else {
+        if (debug) System.out.println("prime is now " + nextPrime(n));
+        n = nextPrime(n);
+      }
+    }
+    if (debug) System.out.println(n);
+    if (debug) System.out.println(":"+facNum);
+    return fakt;
   } // end factorize
 
-
+  // returns next prime number after number 'i'
   int nextPrime(int i) {
-    // returns next prime number after number 'i'
-    // <din kode her>
+    for (int j = i+1; j <= maxNum; j++) if (isPrime(j)) return j;
     return  -1;
   } // end nextTrue
 
@@ -119,25 +150,21 @@ public class EratosthenesSil {
       if (isPrime(i)) System.out.println(" "+i);
   }
 
+  /**
+    * krysser av alle  oddetall i 'bitArr[]' som ikke er primtall (setter de
+    * =0).
+    */
   void generatePrimesByEratosthenes() {
-    // krysser av alle  oddetall i 'bitArr[]' som ikke er primtall (setter de
-    // =0)
-    boolean debug = false;
     crossOut(1);      // 1 is not a prime
     // sjekker ikke partall
-
     for (int i = 3; i <= Math.sqrt(maxNum); i+=2) {
       if (debug) System.out.print("sjekker " + i);
       if (debug) System.out.println("   ..." + checkPrime(i));
-      /* if (!checkPrime(i))  */
-      if (checkPrime(i))
-        for (int j = 3; j <= maxNum / i; j+=2) {
+      if (checkPrime(i) && isPrime(i))
+        for (int j = i; j <= maxNum / i; j+=2) {
           if (debug) System.out.println("::: " + i + "*" +j + " = " + i*j);
           crossOut(i*j);
         }
-
-      if (i == 2) i = 1;
-      /* if (!checkPrime(i)) crossOut(i); */
     }
 
     // < din Kode her, kryss ut multipla av alle primtall <= sqrt(maxNum),
@@ -147,3 +174,5 @@ public class EratosthenesSil {
 
 
 } // end class Bool
+
+class Factorize {}
