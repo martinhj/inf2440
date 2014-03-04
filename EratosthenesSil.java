@@ -104,13 +104,14 @@ boolean checkPrime (int n) {
  *
  */
 /*
- * Plassere denne i en egen klasse?
+ * Plassere disse i en egen klasse?
  */
 void factorize() {
   al = factorize(faNum);
   for (long l: al)
     System.out.print(l + " * ");
-}
+} // end factorize
+
 ArrayList<Long> factorize (long num) {
   ArrayList <Long> fakt = new ArrayList <Long>();
   // <Ukeoppgave i Uke 7: din kode her>
@@ -168,10 +169,6 @@ void generatePrimesByEratosthenes() {
     if (debug) System.out.print("sjekker " + i);
     if (debug) System.out.println("   ..." + checkPrime(i));
     if (checkPrime(i) && isPrime(i))
-      // 9471.103
-      /* if (checkPrime(i)) */
-      // 8368.827
-      // Hvor langt skal egentlig denne krysse ut?
       for (int j = i; j <= maxNum / i; j+=2) {
         if (debug) System.out.println("::: " + i + "*" +j + " = " + i*j);
         crossOut(i*j);
