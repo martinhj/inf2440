@@ -40,7 +40,21 @@ public class EratosthenesSil {
     if (args.length > 0) maxNum = Integer.parseInt(args[0]);
     EratosthenesSil es = new EratosthenesSil(maxNum);
     es.generatePrimesByEratosthenes();
-    /* if (debug)  */es.printAllPrimes();
+    if (es.debug) es.printAllPrimes();
+    long times[] = new long[9];
+    long time, starttime;
+    /* for (int i = 0; i < 9; i++) { */
+    /*   es.setAllPrime(); */
+    /*   starttime = System.nanoTime(); */
+    /*   es.generatePrimesByEratosthenes(); */
+    /*   times[i] = System.nanoTime() - starttime; */
+    /* } */
+    Arrays.sort(times);
+    System.out.println("Time used: " + times[4]/1000000.0);
+    System.out.println(">" + es.nextPrime(43));
+    System.out.println("____" + es.countAllPrimes());
+    if (es.debug) System.out.println("Removed: " + es.removes);
+    System.out.println("factorizeing " + es.faNum);
     es.factorize();
   }
 
@@ -49,20 +63,6 @@ public class EratosthenesSil {
     this.faNum = (long) maxNum * maxNum;
     bitArr = new byte [(maxNum/14)+1];
     setAllPrime();
-    long times[] = new long[9];
-    long time, starttime;
-    /* for (int i = 0; i < 9; i++) { */
-    /*   setAllPrime(); */
-    /*   starttime = System.nanoTime(); */
-    /*   generatePrimesByEratosthenes(); */
-    /*   times[i] = System.nanoTime() - starttime; */
-    /* } */
-    Arrays.sort(times);
-    System.out.println("Time used: " + times[4]/1000000.0);
-    System.out.println(">" + nextPrime(43));
-    System.out.println("____" + countAllPrimes());
-    System.out.println("Removed: " + removes);
-    System.out.println("factorizeing " + faNum);
   } // end konstruktor EratostenesSil
 
   /**
