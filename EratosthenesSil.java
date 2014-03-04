@@ -1,3 +1,7 @@
+// BUGS:
+// Legger ikke til primes i listen over multiplaer i faktoriseringen hvis det
+// er et primtall eller at det det deles på er et primtall (test med 199999 
+// som argument)
 ///--------------------------------------------------------
 //
 //     File: EratosthenesSil.java for INF2440
@@ -23,6 +27,7 @@ public class EratosthenesSil {
   // all primes in this bit-array is <= maxNum
   int  maxNum;
   long faNum;
+  ArrayList<Long> al;
   // kanskje trenge du disse
   final int [] bitMask = {1,2,4,8,16,32,64};
   final int [] bitMask2 ={255-1,255-2,255-4,255-8,255-16,255-32,255-64};
@@ -31,9 +36,12 @@ public class EratosthenesSil {
     int maxNum = 50;
     String s;
     s = "Use as $ java ErastosthenesSil n, where n = max num";
-    System.out.println(s);
+    if (args.length == 0) System.out.println(s);
     if (args.length > 0) maxNum = Integer.parseInt(args[0]);
     EratosthenesSil es = new EratosthenesSil(maxNum);
+    es.generatePrimesByEratosthenes();
+    /* if (debug)  */es.printAllPrimes();
+    es.factorize();
   }
 
   EratosthenesSil (int maxNum) {
@@ -41,16 +49,20 @@ public class EratosthenesSil {
     this.faNum = (long) maxNum * maxNum;
     bitArr = new byte [(maxNum/14)+1];
     setAllPrime();
-    generatePrimesByEratosthenes();
-    if (debug) printAllPrimes();
+    long times[] = new long[9];
+    long time, starttime;
+    /* for (int i = 0; i < 9; i++) { */
+    /*   setAllPrime(); */
+    /*   starttime = System.nanoTime(); */
+    /*   generatePrimesByEratosthenes(); */
+    /*   times[i] = System.nanoTime() - starttime; */
+    /* } */
+    Arrays.sort(times);
+    System.out.println("Time used: " + times[4]/1000000.0);
     System.out.println(">" + nextPrime(43));
     System.out.println("____" + countAllPrimes());
     System.out.println("Removed: " + removes);
     System.out.println("factorizeing " + faNum);
-    ArrayList<Long> al = factorize(faNum);
-    for (long l: al)
-      System.out.print(l + " * ");
-    System.exit(0);
   } // end konstruktor EratostenesSil
 
   /**
@@ -61,18 +73,13 @@ public class EratosthenesSil {
   }
 
   /** Sets the number i in the prime array to zero - not a prime.
+    * set as not prime- cross out (set to 0)  bit represening 'int i'
     * @param i what integer to uncheck.
     */
   void crossOut(int i) {
-    //
-    // set as not prime- cross out (set to 0)  bit represening 'int i'
-    // ** <din kode her>
     removes++;
     bitArr[i/14] = (byte)(bitArr[i/14] & ~(1 << i%14/2));
     if (debug) System.out.println("removing " + i);
-    /* if (debug) System.out.println("arrPlass:" + (i/14)); */
-    /* if (debug) System.out.println("plass:" + ((i - (14*(i/14))) /2)); */
-    /* if (debug) System.out.println("plass:" + (i%14/2) ); */
   } // end crossOut
 
   /** Returns true if number i is represented with a positive number in the 
@@ -99,6 +106,11 @@ public class EratosthenesSil {
   /*
    * Plassere denne i en egen klasse?
    */
+  void factorize() {
+    al = factorize(faNum);
+    for (long l: al)
+      System.out.print(l + " * ");
+  }
   ArrayList<Long> factorize (long num) {
     ArrayList <Long> fakt = new ArrayList <Long>();
     // <Ukeoppgave i Uke 7: din kode her>
@@ -106,11 +118,6 @@ public class EratosthenesSil {
     int n = nextPrime(0);
     long facNum = num;
     while (n < Math.sqrt(num) && facNum != 1) {
-      /* System.out.println("sjekker nå" + num); */
-      /* if (isPrime((int)num)) { */
-      /*   System.out.println("num isPrime!"); */
-      /*   break; */
-      /* } */
       if (n == -1) {
         System.out.println("N == " + n + "\n breaking...");
         break;
@@ -161,6 +168,10 @@ public class EratosthenesSil {
       if (debug) System.out.print("sjekker " + i);
       if (debug) System.out.println("   ..." + checkPrime(i));
       if (checkPrime(i) && isPrime(i))
+      // 9471.103
+      /* if (checkPrime(i)) */
+      // 8368.827
+        // Hvor langt skal egentlig denne krysse ut?
         for (int j = i; j <= maxNum / i; j+=2) {
           if (debug) System.out.println("::: " + i + "*" +j + " = " + i*j);
           crossOut(i*j);
