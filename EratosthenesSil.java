@@ -1,7 +1,15 @@
 // BUGS:
 // Legger ikke til primes i listen over multiplaer i faktoriseringen hvis det
-// er et primtall eller at det det deles på er et primtall (test med 199999 
+// er et primtall eller at det det deles på er et primtall (test med 199999
 // som argument)
+  /* for (int i = 0; i < 9; i++) { */
+  /*   es.setAllPrime(); */
+  /*   starttime = System.nanoTime(); */
+  /*   es.generatePrimesByEratosthenes(); */
+  /*   times[i] = System.nanoTime() - starttime; */
+  /* Arrays.sort(times); */
+  /* } */
+  /* System.out.println("Time used: " + times[4]/1000000.0); */
 ///--------------------------------------------------------
 //
 //     File: EratosthenesSil.java for INF2440
@@ -27,6 +35,8 @@ public class EratosthenesSil {
   // all primes in this bit-array is <= maxNum
   int  maxNum;
   long faNum;
+  long times[] = new long[9];
+  long time, starttime;
   ArrayList<Long> al;
   // kanskje trenge du disse
   final int [] bitMask = {1,2,4,8,16,32,64};
@@ -40,19 +50,8 @@ public static void main (String [] args) {
   if (args.length > 0) maxNum = Integer.parseInt(args[0]);
   EratosthenesSil es = new EratosthenesSil(maxNum);
   es.generatePrimesByEratosthenes();
-  if (es.debug) es.printAllPrimes();
-  long times[] = new long[9];
-  long time, starttime;
-  /* for (int i = 0; i < 9; i++) { */
-  /*   es.setAllPrime(); */
-  /*   starttime = System.nanoTime(); */
-  /*   es.generatePrimesByEratosthenes(); */
-  /*   times[i] = System.nanoTime() - starttime; */
-  /* } */
-  Arrays.sort(times);
-  System.out.println("Time used: " + times[4]/1000000.0);
-  System.out.println(">" + es.nextPrime(43));
-  System.out.println("____" + es.countAllPrimes());
+  /* if (es.debug) */ es.printAllPrimes();
+  System.out.println("Number of primes: " + es.countAllPrimes());
   if (es.debug) System.out.println("Removed: " + es.removes);
   System.out.println("factorizeing " + es.faNum);
   es.factorize();
@@ -82,7 +81,7 @@ void crossOut(int i) {
   if (debug) System.out.println("removing " + i);
 } // end crossOut
 
-/** Returns true if number i is represented with a positive number in the 
+/** Returns true if number i is represented with a positive number in the
  * prime array or it is '2'.
  * @param i what integer to check.
  */
@@ -90,13 +89,11 @@ boolean isPrime (int i) {
   if (i == 2) return true;
   if (i%2 == 0) return false;
   if ((bitArr[i / 14] >> i%14/2 & 1) == 1) return true;
-  return false; 
+  return false;
 } // end isPrime
 
 boolean checkPrime (int n) {
-  for (int i = 2; i < Math.sqrt(n); i++) if (n % i == 0) {
-    return false;
-  }
+  for (int i = 2; i < Math.sqrt(n); i++) if (n % i == 0) return false;
   return true;
 }
 
@@ -161,9 +158,12 @@ void printAllPrimes(){
 /**
  * krysser av alle  oddetall i 'bitArr[]' som ikke er primtall (setter de
  * =0).
+ * kryss ut multipla av alle primtall <= sqrt(maxNum),
+ * og start avkryssingen av neste primtall p med p*p>
  */
 void generatePrimesByEratosthenes() {
   crossOut(1);      // 1 is not a prime
+	boolean debug = true;
   // sjekker ikke partall
   for (int i = 3; i <= Math.sqrt(maxNum); i+=2) {
     if (debug) System.out.print("sjekker " + i);
@@ -174,9 +174,6 @@ void generatePrimesByEratosthenes() {
         crossOut(i*j);
       }
   }
-
-  // < din Kode her, kryss ut multipla av alle primtall <= sqrt(maxNum),
-  // og start avkryssingen av neste primtall p med p*p>
 
 } // end generatePrimesByEratosthenes
 
