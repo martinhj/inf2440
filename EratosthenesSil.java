@@ -1,15 +1,3 @@
-// BUGS:
-// Legger ikke til primes i listen over multiplaer i faktoriseringen hvis det
-// er et primtall eller at det det deles på er et primtall (test med 199999
-// som argument)
-  /* for (int i = 0; i < 9; i++) { */
-  /*   es.setAllPrime(); */
-  /*   starttime = System.nanoTime(); */
-  /*   es.generatePrimesByEratosthenes(); */
-  /*   times[i] = System.nanoTime() - starttime; */
-  /* Arrays.sort(times); */
-  /* } */
-  /* System.out.println("Time used: " + times[4]/1000000.0); */
 ///--------------------------------------------------------
 //
 //     File: EratosthenesSil.java for INF2440
@@ -38,9 +26,9 @@ public class EratosthenesSil {
   // all primes in this bit-array is <= maxNum
   int  maxNum;
   long faNum;
-  long times[] = new long[9];
-  long time, starttime;
-  ArrayList<Long> al;
+
+  static int numberOfTests = 9;
+
   // kanskje trenge du disse
   final int [] bitMask = {1,2,4,8,16,32,64};
   final int [] bitMask2 = {255-1,255-2,255-4,255-8,255-16,255-32,255-64};
@@ -48,7 +36,8 @@ public class EratosthenesSil {
 
 
 
-/** Kicking it all off.
+/** 
+ * Kicking it all off.
  */
 public static void main (String [] args) {
   int maxNum = 50;
@@ -57,17 +46,15 @@ public static void main (String [] args) {
   if (args.length == 0) System.out.println(s);
   if (args.length > 0) maxNum = Integer.parseInt(args[0]);
   EratosthenesSil es = new EratosthenesSil(maxNum);
-  es.generatePrimesByEratosthenes();
-  if (es.debug) es.printAllPrimes();
-  System.out.println("Number of primes: " + es.countAllPrimes());
-  if (es.debug) System.out.println("Removed: " + es.removes);
-  System.out.println("factorizeing " + es.faNum);
-  es.factorize();
+  es.runTest(numberOfTests);
 } // end main
 
 
 
 
+/**
+ * Constructor.
+ */
 EratosthenesSil (int maxNum) {
   this.maxNum = maxNum;
   this.faNum = (long) maxNum * maxNum;
@@ -75,6 +62,38 @@ EratosthenesSil (int maxNum) {
   setAllPrime();
 } // end konstruktor EratostenesSil
 
+
+
+
+/**
+ * Runs the tests.
+ */
+void runTest(int numberOfTests) {
+  long time, starttime;
+  double [] seqEra = new double[numberOfTests];
+  double [] paraEra = new double[numberOfTests];
+  double [] seqFac = new double[numberOfTests];
+  double [] paraFac = new double[numberOfTests];
+  for (int i = 0; i < numberOfTests; i++) {
+    this.setAllPrime();
+    starttime = System.nanoTime();
+    this.generatePrimesByEratosthenes();
+    seqEra[i] = System.nanoTime() - starttime;
+  Arrays.sort(seqEra);
+  if (debug) this.printAllPrimes();
+  }
+  System.out.println("Time used: " + seqEra[numberOfTests/2]/1000000.0);
+  for (int i = 0; i < numberOfTests; i++) {
+    for (long j = (long)maxNum * maxNum - 99; j <= (long)maxNum * maxNum; j++) {
+      factorize(j);
+      if (debug) {
+        System.out.println(j);
+        for (long l: factorize(j)) System.out.print(l + " * ");
+        System.out.println();
+      }
+    }
+  }
+}
 
 
 
@@ -119,11 +138,9 @@ boolean isPrime (int i) {
  * Checks if a number is a prime.
  */
 boolean checkPrime (int n) {
-  long startime = System.nanoTime();
   for (int i = 2; i < Math.sqrt(n); i++)
     if (n % i == 0)
       return false;
-  System.out.println("checkPrime(): " + (System.nanoTime() - starttime)/1000000.0);
   return true;
 }
 
@@ -131,7 +148,8 @@ boolean checkPrime (int n) {
 
 
 /**
- * @return next prime after number @param i 
+ * Finds the next prime.
+ * @return next prime after number @param i
  */
 int nextPrime(int i) {
   for (int j = i+1; j <= maxNum; j++) if (isPrime(j)) return j;
@@ -190,18 +208,6 @@ void generatePrimesByEratosthenes() {
 
 
 /**
- * starts the factorizing.
- */
-void factorize() {
-  al = factorize(faNum);
-  for (long l: al)
-    System.out.print(l + " * ");
-} // end factorize
-
-
-
-
-/**
  * @return an arraylist with the multiples in a factorized number @param num
  */
 ArrayList<Long> factorize (long num) {
@@ -212,7 +218,8 @@ ArrayList<Long> factorize (long num) {
   long facNum = num;
   while (n < Math.sqrt(num) && facNum != 1) {
     if (n == -1) {
-      System.out.println("N == " + n + "\n breaking...");
+      fakt.add(facNum);
+      if (debug) System.out.println("N == " + n + "facNum == " + facNum +"\n breaking...");
       break;
     }
     if (debug) System.out.println("N : " + n);
@@ -235,4 +242,4 @@ ArrayList<Long> factorize (long num) {
 
 
 
-} // end class Bool
+} // end class EratosthenesSil
