@@ -18,6 +18,10 @@
 //
 //--------------------------------------------------------
 import java.util.*;
+
+
+
+
 /**
  * Implements the bitArray of length 'maxNum' [0..bitLen ]
  *   1 - true (is prime number)
@@ -26,7 +30,6 @@ import java.util.*;
  *  Stores info on prime/not-prime in bits 0..6 in each byte
  *  (does not touch the sign-bit - bit7)
  */
-
 public class EratosthenesSil {
   // bitArr[0] represents the 7 integers:  1,3,5,...,13, and so on
   boolean debug = false;
@@ -42,6 +45,11 @@ public class EratosthenesSil {
   final int [] bitMask = {1,2,4,8,16,32,64};
   final int [] bitMask2 = {255-1,255-2,255-4,255-8,255-16,255-32,255-64};
 
+
+
+
+/** Kicking it all off.
+ */
 public static void main (String [] args) {
   int maxNum = 50;
   String s;
@@ -50,12 +58,15 @@ public static void main (String [] args) {
   if (args.length > 0) maxNum = Integer.parseInt(args[0]);
   EratosthenesSil es = new EratosthenesSil(maxNum);
   es.generatePrimesByEratosthenes();
-  /* if (es.debug) */ es.printAllPrimes();
+  if (es.debug) es.printAllPrimes();
   System.out.println("Number of primes: " + es.countAllPrimes());
   if (es.debug) System.out.println("Removed: " + es.removes);
   System.out.println("factorizeing " + es.faNum);
   es.factorize();
 } // end main
+
+
+
 
 EratosthenesSil (int maxNum) {
   this.maxNum = maxNum;
@@ -64,12 +75,18 @@ EratosthenesSil (int maxNum) {
   setAllPrime();
 } // end konstruktor EratostenesSil
 
+
+
+
 /**
- *
+ * Sets all numbers as primes making them ready to be unchecked again.
  */
 void setAllPrime() {
   for (int i = 0; i < bitArr.length; i++) bitArr[i] = (byte)127;
 }
+
+
+
 
 /** Sets the number i in the prime array to zero - not a prime.
  * set as not prime- cross out (set to 0)  bit represening 'int i'
@@ -80,6 +97,9 @@ void crossOut(int i) {
   bitArr[i/14] = (byte)(bitArr[i/14] & ~(1 << i%14/2));
   if (debug) System.out.println("removing " + i);
 } // end crossOut
+
+
+
 
 /** Returns true if number i is represented with a positive number in the
  * prime array or it is '2'.
@@ -92,16 +112,85 @@ boolean isPrime (int i) {
   return false;
 } // end isPrime
 
+
+
+
+/**
+ * Checks if a number is a prime.
+ */
 boolean checkPrime (int n) {
-  for (int i = 2; i < Math.sqrt(n); i++) if (n % i == 0) return false;
+  long startime = System.nanoTime();
+  for (int i = 2; i < Math.sqrt(n); i++)
+    if (n % i == 0)
+      return false;
+  System.out.println("checkPrime(): " + (System.nanoTime() - starttime)/1000000.0);
   return true;
 }
 
+
+
+
 /**
- *
+ * @return next prime after number @param i 
  */
-/*
- * Plassere disse i en egen klasse?
+int nextPrime(int i) {
+  for (int j = i+1; j <= maxNum; j++) if (isPrime(j)) return j;
+  return  -1;
+} // end nextTrue
+
+
+
+
+/**
+ * Counts how many primes found with Eratosthenes method.
+ */
+int countAllPrimes() {
+  int c = 0;
+  for (int i = 2; i <= maxNum; i++)
+    if (isPrime(i)) c++;
+  return c;
+}
+
+
+
+
+/**
+ * Prints out all numbers that is presented as primes in the bitArr array.
+ */
+void printAllPrimes(){
+  for ( int i = 2; i <= maxNum; i++)
+    if (isPrime(i)) System.out.println(" "+i);
+}
+
+
+
+
+/**
+ * krysser av alle  oddetall i 'bitArr[]' som ikke er primtall (setter de
+ * =0).
+ * kryss ut multipla av alle primtall <= sqrt(maxNum) * og start avkryssingen
+ * av neste primtall p med p*p>
+ */
+void generatePrimesByEratosthenes() {
+  crossOut(1);      // 1 is not a prime
+  // sjekker ikke partall
+  for (int i = 3; i <= Math.sqrt(maxNum); i+=2) {
+    if (debug) System.out.print("sjekker " + i);
+    if (debug) System.out.println("   ..." + checkPrime(i));
+    if (checkPrime(i) && isPrime(i))
+      for (int j = i; j <= maxNum / i; j+=2) {
+        if (debug) System.out.println("::: " + i + "*" +j + " = " + i*j);
+        crossOut(i*j);
+      }
+  }
+
+} // end generatePrimesByEratosthenes
+
+
+
+
+/**
+ * starts the factorizing.
  */
 void factorize() {
   al = factorize(faNum);
@@ -109,6 +198,12 @@ void factorize() {
     System.out.print(l + " * ");
 } // end factorize
 
+
+
+
+/**
+ * @return an arraylist with the multiples in a factorized number @param num
+ */
 ArrayList<Long> factorize (long num) {
   ArrayList <Long> fakt = new ArrayList <Long>();
   // <Ukeoppgave i Uke 7: din kode her>
@@ -137,47 +232,7 @@ ArrayList<Long> factorize (long num) {
   return fakt;
 } // end factorize
 
-// returns next prime number after number 'i'
-int nextPrime(int i) {
-  for (int j = i+1; j <= maxNum; j++) if (isPrime(j)) return j;
-  return  -1;
-} // end nextTrue
 
-int countAllPrimes() {
-  int c = 0;
-  for (int i = 2; i <= maxNum; i++)
-    if (isPrime(i)) c++;
-  return c;
-}
-
-void printAllPrimes(){
-  for ( int i = 2; i <= maxNum; i++)
-    if (isPrime(i)) System.out.println(" "+i);
-}
-
-/**
- * krysser av alle  oddetall i 'bitArr[]' som ikke er primtall (setter de
- * =0).
- * kryss ut multipla av alle primtall <= sqrt(maxNum),
- * og start avkryssingen av neste primtall p med p*p>
- */
-void generatePrimesByEratosthenes() {
-  crossOut(1);      // 1 is not a prime
-	boolean debug = true;
-  // sjekker ikke partall
-  for (int i = 3; i <= Math.sqrt(maxNum); i+=2) {
-    if (debug) System.out.print("sjekker " + i);
-    if (debug) System.out.println("   ..." + checkPrime(i));
-    if (checkPrime(i) && isPrime(i))
-      for (int j = i; j <= maxNum / i; j+=2) {
-        if (debug) System.out.println("::: " + i + "*" +j + " = " + i*j);
-        crossOut(i*j);
-      }
-  }
-
-} // end generatePrimesByEratosthenes
 
 
 } // end class Bool
-
-class Factorize {}
