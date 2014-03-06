@@ -36,7 +36,7 @@ public class EratosthenesSil {
 
 
 
-/** 
+/**
  * Kicking it all off.
  */
 public static void main (String [] args) {
