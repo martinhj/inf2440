@@ -68,31 +68,80 @@ EratosthenesSil (int maxNum) {
 /**
  * Runs the tests.
  */
-void runTest(int numberOfTests) {
+void runTest(int numberOfTests)
+{
+  System.out.println(runEraSeqTest(numberOfTests));
+  System.out.println(runFacSeqTest(numberOfTests));
+}
+
+
+
+
+/**
+ * Runs the seq Era tests.
+ */
+double runEraSeqTest(int n) {
   long time, starttime;
-  double [] seqEra = new double[numberOfTests];
-  double [] paraEra = new double[numberOfTests];
-  double [] seqFac = new double[numberOfTests];
-  double [] paraFac = new double[numberOfTests];
-  for (int i = 0; i < numberOfTests; i++) {
+  long [] times = new long [n];
+  for (int i = 0; i < numberOfTests; i++)
+  {
     this.setAllPrime();
     starttime = System.nanoTime();
     this.generatePrimesByEratosthenes();
-    seqEra[i] = System.nanoTime() - starttime;
-  Arrays.sort(seqEra);
+    times[i] = System.nanoTime() - starttime;
+  Arrays.sort(times);
   if (debug) this.printAllPrimes();
   }
-  System.out.println("Time used: " + seqEra[numberOfTests/2]/1000000.0);
-  for (int i = 0; i < numberOfTests; i++) {
-    for (long j = (long)maxNum * maxNum - 99; j <= (long)maxNum * maxNum; j++) {
-      factorize(j);
-      if (debug) {
-        System.out.println(j);
-        for (long l: factorize(j)) System.out.print(l + " * ");
-        System.out.println();
-      }
-    }
-  }
+  // return dette
+  //System.out.println("Time used: " + times[numberOfTests/2]/1000000.0);
+  return times[numberOfTests/2]/1000000.0;
+}
+
+
+
+
+/**
+ * Runs the para Era tests.
+ */
+double runEraParTest() {
+  return -1;
+}
+
+
+
+
+/**
+ * Runs the seq Fac tests.
+ */
+double runFacSeqTest(int n) {
+	boolean debug = false;
+	long time, starttime;
+	long [] times = new long [n];
+	for (int i = 0; i < numberOfTests; i++) {
+		starttime = System.nanoTime();
+		for (long j = (long)maxNum * maxNum - 99; j <= (long)maxNum * maxNum; j++)
+		{
+			if (!debug) factorize(j);
+			if (debug) {
+				System.out.print(((long)maxNum*maxNum) - j + ": " + j + " : ");
+				for (long l: factorize(j)) System.out.print(l + " * ");
+				System.out.println();
+			}
+		}
+		times[i] = System.nanoTime() - starttime;
+		Arrays.sort(times);
+	}
+	return times[numberOfTests/2]/1000000.0;
+}
+
+
+
+
+/**
+ * Runs the para Fac tests.
+ */
+double runFacParTest() {
+  return -1;
 }
 
 
