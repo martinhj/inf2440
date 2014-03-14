@@ -89,6 +89,7 @@ double runEraSeqTest(int n) {
     starttime = System.nanoTime();
     this.generatePrimesByEratosthenes();
     times[i] = System.nanoTime() - starttime;
+		System.out.println(times[i]/1000000.0);
   Arrays.sort(times);
   if (debug) this.printAllPrimes();
   }
@@ -129,6 +130,7 @@ double runFacSeqTest(int n) {
 			}
 		}
 		times[i] = System.nanoTime() - starttime;
+		System.out.println(times[i]/1000000.0);
 		Arrays.sort(times);
 	}
 	return times[numberOfTests/2]/1000000.0;
@@ -268,6 +270,33 @@ ArrayList<Long> factorize (long num) {
   while (n < Math.sqrt(num) && facNum != 1) {
     if (n == -1) {
       fakt.add(facNum);
+      break;
+    }
+    if (facNum % n == 0) {
+      fakt.add((long) n);
+      facNum /= n;
+    } else {
+      n = nextPrime(n);
+    }
+  }
+  return fakt;
+} // end factorize
+
+
+
+
+/**
+ * @return an arraylist with the multiples in a factorized number @param num
+ */
+ArrayList<Long> factorize (long num, boolean t) {
+  ArrayList <Long> fakt = new ArrayList <Long>();
+  // <Ukeoppgave i Uke 7: din kode her>
+  int cp;
+  int n = nextPrime(0);
+  long facNum = num;
+  while (n < Math.sqrt(num) && facNum != 1) {
+    if (n == -1) {
+      fakt.add(facNum);
       if (debug) System.out.println("N == " + n + "facNum == " + facNum +"\n breaking...");
       break;
     }
@@ -287,6 +316,14 @@ ArrayList<Long> factorize (long num) {
   if (debug) System.out.println(":"+facNum);
   return fakt;
 } // end factorize
+
+
+
+
+class SilRunner implements Runnable {
+	public void run() {
+	}
+}
 
 
 
