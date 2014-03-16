@@ -27,7 +27,7 @@ public class EratosthenesSil {
   int  maxNum;
   long faNum;
 
-  static int numberOfTests = 9;
+  static int numberOfTests = 1;
 
   // kanskje trenge du disse
   final int [] bitMask = {1,2,4,8,16,32,64};
@@ -70,8 +70,11 @@ EratosthenesSil (int maxNum) {
  */
 void runTest(int numberOfTests)
 {
-  System.out.println(runEraSeqTest(numberOfTests));
-  System.out.println(runFacSeqTest(numberOfTests));
+	System.out.println("Ran with " + numberOfTests + " tests.");
+	System.out.println(runEraSeqTest(numberOfTests));
+	//for (long l: factorize(50)) System.out.print(l + " * ");
+	for (long l: factorize(1999999998)) System.out.print(l + " * ");
+	//System.out.println(runFacSeqTest(numberOfTests));
 }
 
 
@@ -81,21 +84,21 @@ void runTest(int numberOfTests)
  * Runs the seq Era tests.
  */
 double runEraSeqTest(int n) {
-  long time, starttime;
-  long [] times = new long [n];
-  for (int i = 0; i < numberOfTests; i++)
-  {
-    this.setAllPrime();
-    starttime = System.nanoTime();
-    this.generatePrimesByEratosthenes();
-    times[i] = System.nanoTime() - starttime;
+	long time, starttime;
+	long [] times = new long [n];
+	for (int i = 0; i < numberOfTests; i++)
+	{
+		this.setAllPrime();
+		starttime = System.nanoTime();
+		this.generatePrimesByEratosthenes();
+		times[i] = System.nanoTime() - starttime;
 		System.out.println(times[i]/1000000.0);
-  Arrays.sort(times);
-  if (debug) this.printAllPrimes();
-  }
-  // return dette
-  //System.out.println("Time used: " + times[numberOfTests/2]/1000000.0);
-  return times[numberOfTests/2]/1000000.0;
+		Arrays.sort(times);
+		if (debug) this.printAllPrimes();
+	}
+	// return dette
+	//System.out.println("Time used: " + times[numberOfTests/2]/1000000.0);
+	return times[numberOfTests/2]/1000000.0;
 }
 
 
@@ -115,12 +118,13 @@ double runEraParTest() {
  * Runs the seq Fac tests.
  */
 double runFacSeqTest(int n) {
-	boolean debug = false;
+	boolean debug = true;
 	long time, starttime;
 	long [] times = new long [n];
-	for (int i = 0; i < numberOfTests; i++) {
+	System.out.println((long)maxNum * maxNum);
+	for (int i = 0; i < n; i++) {
 		starttime = System.nanoTime();
-		for (long j = (long)maxNum * maxNum - 99; j <= (long)maxNum * maxNum; j++)
+		for (long j = (long)maxNum * maxNum - 0; j <= (long)maxNum * maxNum; j++)
 		{
 			if (!debug) factorize(j);
 			if (debug) {
@@ -262,69 +266,31 @@ void generatePrimesByEratosthenes() {
  * @return an arraylist with the multiples in a factorized number @param num
  */
 ArrayList<Long> factorize (long num) {
-  ArrayList <Long> fakt = new ArrayList <Long>();
-  // <Ukeoppgave i Uke 7: din kode her>
-  int cp;
+  ArrayList <Long> fac = new ArrayList <Long>();
   int n = nextPrime(0);
   long facNum = num;
   while (n < Math.sqrt(num) && facNum != 1) {
     if (n == -1) {
-      fakt.add(facNum);
+      fac.add(facNum);
       break;
     }
     if (facNum % n == 0) {
-      fakt.add((long) n);
+      fac.add((long) n);
       facNum /= n;
     } else {
       n = nextPrime(n);
     }
   }
-  return fakt;
+  return fac;
 } // end factorize
 
 
 
 
-/**
- * @return an arraylist with the multiples in a factorized number @param num
- */
-ArrayList<Long> factorize (long num, boolean t) {
-  ArrayList <Long> fakt = new ArrayList <Long>();
-  // <Ukeoppgave i Uke 7: din kode her>
-  int cp;
-  int n = nextPrime(0);
-  long facNum = num;
-  while (n < Math.sqrt(num) && facNum != 1) {
-    if (n == -1) {
-      fakt.add(facNum);
-      if (debug) System.out.println("N == " + n + "facNum == " + facNum +"\n breaking...");
-      break;
-    }
-    if (debug) System.out.println("N : " + n);
-    if (debug) System.out.println("facNum : " + facNum);
-    if (facNum % n == 0) {
-      fakt.add((long) n);
-      facNum = facNum / n;
-      if (debug) System.out.println("adding " + n);
-      if (debug) System.out.println("num = " + facNum);
-    } else {
-      if (debug) System.out.println("prime is now " + nextPrime(n));
-      n = nextPrime(n);
-    }
-  }
-  if (debug) System.out.println(n);
-  if (debug) System.out.println(":"+facNum);
-  return fakt;
-} // end factorize
-
-
-
-
-class SilRunner implements Runnable {
+class SieveRunner implements Runnable {
 	public void run() {
 	}
 }
-
 
 
 
