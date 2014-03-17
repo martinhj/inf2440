@@ -73,8 +73,8 @@ void runTest(int numberOfTests)
 	System.out.println("Ran with " + numberOfTests + " tests.");
 	System.out.println(runEraSeqTest(numberOfTests));
 	//for (long l: factorize(50)) System.out.print(l + " * ");
-	for (long l: factorize(1999999998)) System.out.print(l + " * ");
-	//System.out.println(runFacSeqTest(numberOfTests));
+	//for (long l: factorize(1999999998)) System.out.print(l + " * ");
+	System.out.println(runFacSeqTest(numberOfTests));
 }
 
 
@@ -269,6 +269,8 @@ ArrayList<Long> factorize (long num) {
   ArrayList <Long> fac = new ArrayList <Long>();
   int n = nextPrime(0);
   long facNum = num;
+  System.out.println(num);
+  System.out.println(facNum);
   while (n < Math.sqrt(num) && facNum != 1) {
     if (n == -1) {
       fac.add(facNum);
@@ -291,6 +293,7 @@ class SieveRunner implements Runnable {
 	public void run() {
 	}
 }
+
 
 
 
