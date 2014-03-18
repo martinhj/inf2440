@@ -7,6 +7,8 @@
 //--------------------------------------------------------
 import java.util.*;
 
+// i = (j - (p*p))/p (og + (j-(p*p))%/p
+
 
 
 
@@ -22,7 +24,6 @@ public class EratosthenesSil {
   // bitArr[0] represents the 7 integers:  1,3,5,...,13, and so on
   boolean debug = false;
   byte [] bitArr;
-  long removes = 0;
   // all primes in this bit-array is <= maxNum
   int  maxNum;
   long faNum;
@@ -70,11 +71,14 @@ EratosthenesSil (int maxNum) {
  */
 void runTest(int numberOfTests)
 {
-	System.out.println("Ran with " + numberOfTests + " tests.");
+	//System.out.println("Ran with " + numberOfTests + " tests.");
+  System.out.print("Erastosthenes Sil sekvensielt: ");
 	System.out.println(runEraSeqTest(numberOfTests));
 	//for (long l: factorize(50)) System.out.print(l + " * ");
 	//for (long l: factorize(1999999998)) System.out.print(l + " * ");
+  System.out.print("Faktorisering sekvensielt: ");
 	System.out.println(runFacSeqTest(numberOfTests));
+  splitArray();
 }
 
 
@@ -92,7 +96,7 @@ double runEraSeqTest(int n) {
 		starttime = System.nanoTime();
 		this.generatePrimesByEratosthenes();
 		times[i] = System.nanoTime() - starttime;
-		System.out.println(times[i]/1000000.0);
+		if (debug) System.out.println(times[i]/1000000.0);
 		Arrays.sort(times);
 		if (debug) this.printAllPrimes();
 	}
@@ -118,10 +122,9 @@ double runEraParTest() {
  * Runs the seq Fac tests.
  */
 double runFacSeqTest(int n) {
-	boolean debug = true;
+	boolean debug = false;
 	long time, starttime;
 	long [] times = new long [n];
-	System.out.println((long)maxNum * maxNum);
 	for (int i = 0; i < n; i++) {
 		starttime = System.nanoTime();
 		for (long j = (long)maxNum * maxNum - 0; j <= (long)maxNum * maxNum; j++)
@@ -134,7 +137,7 @@ double runFacSeqTest(int n) {
 			}
 		}
 		times[i] = System.nanoTime() - starttime;
-		System.out.println(times[i]/1000000.0);
+		//System.out.println(times[i]/1000000.0);
 		Arrays.sort(times);
 	}
 	return times[numberOfTests/2]/1000000.0;
@@ -167,7 +170,6 @@ void setAllPrime() {
  * @param i what integer to uncheck.
  */
 void crossOut(int i) {
-  removes++;
   bitArr[i/14] = (byte)(bitArr[i/14] & ~(1 << i%14/2));
   if (debug) System.out.println("removing " + i);
 } // end crossOut
@@ -239,6 +241,27 @@ void printAllPrimes(){
 
 
 /**
+ * Splits byte array before calculation in different threads and kicks off threads.
+ * i > sqrt(N). i < sqrt(N) skal bli funnet i en egen tråd før resten av tråene
+ * sparkes i gang.
+ */
+void splitArray () {
+  // fra sqrt(maxNum) til maxNum;
+  double firstNum = Math.sqrt(maxNum) - 1;
+  int firstByte = (int)(firstNum / 14);
+  System.out.println("First num (sqrt " + maxNum + "): " + firstNum);
+  System.out.println("First byte: " + firstByte);
+  // - 0  0  0  0  0  0  0
+ //(0) 1  3  5  7  9 11 13(14)
+// (1)15 17 19 21 23 25 27(28)
+// (2)29 31 33 35 37 39 41
+// fra 1 - 13 (14) i første byte (0).
+}
+
+
+
+
+/**
  * krysser av alle  oddetall i 'bitArr[]' som ikke er primtall (setter de
  * =0).
  * kryss ut multipla av alle primtall <= sqrt(maxNum) * og start avkryssingen
@@ -269,8 +292,8 @@ ArrayList<Long> factorize (long num) {
   ArrayList <Long> fac = new ArrayList <Long>();
   int n = nextPrime(0);
   long facNum = num;
-  System.out.println(num);
-  System.out.println(facNum);
+  //System.out.println(num);
+  //System.out.println(facNum);
   while (n < Math.sqrt(num) && facNum != 1) {
     if (n == -1) {
       fac.add(facNum);
