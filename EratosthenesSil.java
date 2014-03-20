@@ -83,13 +83,13 @@ void runTest(int numberOfTests) {
   System.out.print("Erastosthenes Sil sekvensielt: ");
   System.out.println(runEraSeqTest(numberOfTests));
   System.out.println("Number of primes seq: " + countAllPrimes());
+  setAllPrime();
+  System.out.println(runEraParTest(numberOfTests));
+  System.out.println("Number of primes para: " + countAllPrimes());
   //for (long l: factorize(50)) System.out.print(l + " * ");
   //for (long l: factorize(1999999998)) System.out.print(l + " * ");
   System.out.print("Faktorisering sekvensielt: ");
-  System.out.println(runFacSeqTest(numberOfTests));
-  setAllPrime();
-  splitArray();
-  System.out.println("Number of primes para: " + countAllPrimes());
+  //System.out.println(runFacSeqTest(numberOfTests));
 }
 
 
@@ -122,7 +122,9 @@ double runEraSeqTest(int n) {
 /**
  * Runs the para Era tests.
  */
-double runEraParTest() {
+// Denne må settes opp!
+double runEraParTest(int n) {
+  EratosthenesSieveRun();
   return -1;
 }
 
@@ -258,19 +260,18 @@ void printAllPrimes(){
  *                      bytes.
  * sparkes i gang.
  */
-void splitArray () {
+void EratosthenesSieveRun() {
   int q = Runtime.getRuntime().availableProcessors();
 	bwait = new CyclicBarrier(q + 1);
 	bfinish = new CyclicBarrier(q + 1);
+
   int breakByte = (int)Math.sqrt(maxNum) / 14;
   int firstByteA = (int) breakByte + 1;
-  int lastByte = bitArr.length - 1;
-  int bfirstByte = 0;
-  int rangeSize = lastByte - breakByte;
+  int rangeSize = bitArr.length - 1 - breakByte;
   for (int i = 0; i < q; i++) {
     int rangeStart = (i * rangeSize / q) + firstByteA;
     int rangeStop = ((i + 1) * rangeSize / q) + firstByteA - 1;
-    if (i == q - 1) rangeStop = lastByte;
+    if (i == q - 1) rangeStop = bitArr.length - 1;
     new Thread(new SieveRunner(i,rangeStart, rangeStop)).start();
   }
   try {
