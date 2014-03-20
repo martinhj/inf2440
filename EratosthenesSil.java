@@ -37,7 +37,7 @@ public class EratosthenesSil {
   int  maxNum;
   long faNum;
 
-  static int numberOfTests = 1;
+  static int numberOfTests = 9;
 
   // kanskje trenge du disse
   final int [] bitMask = {1,2,4,8,16,32,64};
@@ -82,10 +82,12 @@ void runTest(int numberOfTests) {
   //System.out.println("Ran with " + numberOfTests + " tests.");
   System.out.print("Erastosthenes Sil sekvensielt: ");
   System.out.println(runEraSeqTest(numberOfTests));
-  System.out.println("Number of primes seq: " + countAllPrimes());
-  setAllPrime();
+  System.out.print("Number of primes seq: ");
+  System.out.println(countAllPrimes());
+  System.out.print("Erastosthenes Sil parallelt: ");
   System.out.println(runEraParTest(numberOfTests));
-  System.out.println("Number of primes para: " + countAllPrimes());
+  System.out.print("Number of primes para: ");
+  System.out.println(countAllPrimes());
   //for (long l: factorize(50)) System.out.print(l + " * ");
   //for (long l: factorize(1999999998)) System.out.print(l + " * ");
   System.out.print("Faktorisering sekvensielt: ");
@@ -105,14 +107,12 @@ double runEraSeqTest(int n) {
   {
     this.setAllPrime();
     starttime = System.nanoTime();
-    this.generatePrimesByEratosthenes();
+    generatePrimesByEratosthenes();
     times[i] = System.nanoTime() - starttime;
     if (debug) System.out.println(times[i]/1000000.0);
     Arrays.sort(times);
     if (debug) this.printAllPrimes();
   }
-  // return dette
-  //System.out.println("Time used: " + times[numberOfTests/2]/1000000.0);
   return times[numberOfTests/2]/1000000.0;
 }
 
@@ -122,10 +122,20 @@ double runEraSeqTest(int n) {
 /**
  * Runs the para Era tests.
  */
-// Denne må settes opp!
 double runEraParTest(int n) {
-  EratosthenesSieveRun();
-  return -1;
+  long time, starttime;
+  long [] times = new long [n];
+  for (int i = 0; i < numberOfTests; i++)
+  {
+    this.setAllPrime();
+    starttime = System.nanoTime();
+    EratosthenesSieveRun();
+    times[i] = System.nanoTime() - starttime;
+    if (debug) System.out.println(times[i]/1000000.0);
+    Arrays.sort(times);
+    if (debug) this.printAllPrimes();
+  }
+  return times[numberOfTests/2]/1000000.0;
 }
 
 
