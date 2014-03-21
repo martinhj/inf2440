@@ -1,3 +1,8 @@
+// TODO:
+// Vise snitt på hvor lang tid det tar å faktorisere (tid / antall 
+// faktoriserte tall (100).
+//
+//
 // I denne oppgaven mangler det noe presisjon. Det vil kunne skje at programmet
 // regner ut flere tall en nødvendig. Dette er for at den forholder seg til hele
 // byter som det lagres i og at det siste tallet som er oppgitt ikke trenger å 
@@ -90,6 +95,7 @@ void runTest(int numberOfTests) {
   //for (long l: factorize(1999999998)) System.out.print(l + " * ");
   System.out.print("Faktorisering sekvensielt: ");
   //System.out.println(runFacSeqTest(numberOfTests));
+  splitUp();
 }
 
 
@@ -174,6 +180,67 @@ double runFacParTest() {
   return -1;
 }
 
+
+
+
+/**
+ * Split up array to factorize.
+ */
+void splitUp() {
+  int q = Runtime.getRuntime().availableProcessors();
+  String s;
+  String nl = "\n";
+  int numberOfPrimes = countAllPrimes();
+  s = "Split up the primes" + nl;
+  s += "We got " + numberOfPrimes + " primes." + nl;
+  System.out.println(s);
+  s = "If we split up number of primes: " + nl;
+  int startpoint;
+  int stoppoint;
+  for (int i = 0; i < q; i++) {
+    startpoint = numberOfPrimes / q * i;
+    s += "Startpoint: " 
+      + startpoint
+      + " to ";
+
+    if (i == q - 1) 
+      stoppoint = numberOfPrimes;
+    else 
+      stoppoint = (numberOfPrimes / q * (i + 1) - 1);
+    s += stoppoint;
+    int prime;
+    s += nl + "Let's print out the primes" + nl;
+    s += "(And count them)";
+    // finne et antall primer
+    //prime = nextPrime(
+    //while (primeCount < primeRange) {
+      //prime = nextPrime(
+
+    //}
+  } // end for i 
+  s += " Should we use -1 here? Check with nextPrime." + nl
+    + "De we count a prime 0 as one (probably not in this case.)" + nl
+    + "(We can modify countAllPrimes() to count a range.)";
+
+
+  s += nl + "Or if we split up by numbers: " + nl;
+
+  for (int i = 0; i < q; i++) {
+    s += "Startpoint: "
+      + maxNum / q * i
+      + " to ";
+    if (i == q - 1)
+      s += maxNum + "(- 1?)" + nl;
+    else
+      s += (maxNum / q * (i + 1) - 1) + nl;
+  } // end for i
+  // Finne primer mellom to tall.
+    //while (nextPrime(prime) < stopPoint) {
+  // while()
+  System.out.println(s);
+  // Dirty løsning ved å del opp i q -1 antall trårder og så
+  // dele opp det første området i 1/3 og 2/3 i hver sin tråd?
+}
 
 
 
@@ -360,6 +427,34 @@ void generatePrimesByEratosthenesPara(int index, int startByte, int endByte) {
  * @return an arraylist with the multiples in a factorized number @param num
  */
 ArrayList<Long> factorize (long num) {
+  ArrayList <Long> fac = new ArrayList <Long>();
+  int n = nextPrime(0);
+  long facNum = num;
+  //System.out.println(num);
+  //System.out.println(facNum);
+  while (n < Math.sqrt(num) && facNum != 1) {
+    if (n == -1) {
+      fac.add(facNum);
+      break;
+    }
+    if (facNum % n == 0) {
+      fac.add((long) n);
+      facNum /= n;
+    } else {
+      n = nextPrime(n);
+    }
+  }
+  return fac;
+} // end factorize
+
+
+
+
+/**
+ * @return an arraylist with the multiples in a factorized number @param num
+ * Finds multiples between start and end.
+ */
+ArrayList<Long> factorizePara (long num, int start, int end) {
   ArrayList <Long> fac = new ArrayList <Long>();
   int n = nextPrime(0);
   long facNum = num;
