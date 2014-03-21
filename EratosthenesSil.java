@@ -15,8 +15,6 @@
 import java.util.*;
 import java.util.concurrent.CyclicBarrier;
 
-// i = (j - (p*p))/p (og + (j-(p*p))%/p
-
 
 
 
@@ -178,6 +176,7 @@ double runFacParTest() {
 
 
 
+
 /**
  * Sets all numbers as primes making them ready to be unchecked again.
  */
@@ -313,43 +312,43 @@ void generatePrimesByEratosthenes() {
 
 
 
+
 /**
  * krysser av alle  oddetall i 'bitArr[]' som ikke er primtall (setter de
- * =0).
- * kryss ut multipla av alle primtall <= sqrt(maxNum) * og start avkryssingen
- * av neste primtall p med p*p>
+ * =0). Krysser ut alle oddetall fra og med @args startByte til og med @args
+ * endByte. Kunne vært delt opp i to metoder slik at det som blir kjørt hvis
+ * index == -1 kunne vært i en og det andre i en annen. Men få tester ( ==
+ * antall tråder).
  */
 void generatePrimesByEratosthenesPara(int index, int startByte, int endByte) {
   boolean debug = true;
   int firstNum = startByte * 14 + 1;
   int lastNum = endByte * 14 + 14;
 
-  if (index == - 1) {
-  crossOut(1);      // 1 is not a prime
-  // sjekker ikke partall
-  int j;
-  for (int i = 3; i <= Math.sqrt(maxNum); i+=2) {
-    if (checkPrime(i) && isPrime(i)) {
-      j = i;
-      while (i * j <= lastNum) {
-        crossOut(i*j);
-        j+=2;
+  if (index == -1) {
+    crossOut(1);      // 1 is not a prime
+    int j;
+    for (int i = 3; i <= Math.sqrt(maxNum); i+=2) {
+      if (checkPrime(i) && isPrime(i)) {
+        j = i;
+        while (i * j <= lastNum) {
+          crossOut(i*j);
+          j+=2;
+        }
       }
     }
-  }
   } else {
-
-  int prime = nextPrime(2);
-  while (prime <= Math.sqrt(maxNum)) {
-  int multiplier = (int)Math.ceil((double)firstNum / prime);
-  if (multiplier % 2 == 0) multiplier++;
-  while(prime * multiplier <= lastNum) {
-      crossOut(prime*multiplier);
-      multiplier += 2;
-  }
-  prime = nextPrime(prime);
-  if (prime == -1) break;
-  }
+    int prime = nextPrime(2);
+    while (prime <= Math.sqrt(maxNum)) {
+      int multiplier = (int)Math.ceil((double)firstNum / prime);
+      if (multiplier % 2 == 0) multiplier++;
+      while(prime * multiplier <= lastNum) {
+        crossOut(prime*multiplier);
+        multiplier += 2;
+      }
+      prime = nextPrime(prime);
+      if (prime == -1) break;
+    }
   }
 } // end generatePrimesByEratosthenesPara
 
@@ -384,6 +383,10 @@ ArrayList<Long> factorize (long num) {
 
 
 
+/**
+ * Help class to figure out which numbers are primes by Eratosthenes Sieve in
+ * parallel.
+ */
 class SieveRunner implements Runnable {
   int index, startByte, stopByte;
   SieveRunner(int index, int startByte, int stopByte) {
@@ -401,6 +404,10 @@ class SieveRunner implements Runnable {
       bfinish.await();
     } catch (Exception e) {return;}
   }
+}
+
+class FactorizeRunner implements Runnable {
+  public void run() {}
 }
 
 
