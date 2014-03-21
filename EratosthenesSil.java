@@ -98,7 +98,7 @@ void runTest(int numberOfTests) {
   System.out.println(runFacSeqTest(numberOfTests) + "ms.");
   System.out.println();
   System.out.print("Faktorisering parallelt: ");
-  System.out.println(runFacParTest(numberOfTests));
+  System.out.println(runFacParTest(numberOfTests) + "ms.");
 }
 
 
@@ -211,18 +211,30 @@ double runFacParTest(int n) {
 ArrayList<Long> factorizeParaRun(long num) {
   boolean debug = true;
   int q = Runtime.getRuntime().availableProcessors();
+	bwait = new CyclicBarrier(q + 1);
+	bfinish = new CyclicBarrier(q + 1);
   int numberOfPrimes = countAllPrimes();
   int startpoint, stoppoint;
   int primeSum = 0;
   ArrayList<Long> fac = new ArrayList<Long>();
   ArrayList<ArrayList<Long>> l = new ArrayList<ArrayList<Long>>(q);
+  FactorizeRunner a [] = new FactorizeRunner [q];
   for (int i = 0; i < q; i++) {
     startpoint = numberOfPrimes / q * i;
     if (i == q - 1) stoppoint = numberOfPrimes;
     else stoppoint = (numberOfPrimes / q * (i + 1) - 1);
     // denne må flyttes til para.
-    l.add(factorizePara(num, startpoint, stoppoint));
+    //l.add(factorizePara(num, startpoint, stoppoint));
+    new Thread(a[i] = new FactorizeRunner(num, startpoint, stoppoint)).start();
+    // legge inn en wait her...
   } // end for i 
+  try {
+    bwait.await();
+    for (FactorizeRunner ai: a)
+      l.add(ai.getFactors());
+    bfinish.await();
+  } catch (Exception e) {return null;}
+
   long product = 1;
   // Kjøre denne  etter at run er ferdig kjørt.
   if (debug) System.out.println("Print out multipliers: ");
@@ -480,7 +492,6 @@ ArrayList<Long> factorizePara (long num, int start, int end) {
     if (prime == -1) break;
     if (facNum % prime == 0) {
       fac.add((long) prime);
-      //System.out.println(prime);
       facNum /= prime;
     } else {
       prime = nextPrime(prime);
@@ -520,14 +531,23 @@ class SieveRunner implements Runnable {
 
 
 class FactorizeRunner implements Runnable {
-  ArrayList<Long> fac = new ArrayList<Long>();
+  ArrayList<Long> fac; //= new ArrayList<Long>();
   int start, end;
-  FactorizeRunner(int start, int e) {
+  long num;
+  FactorizeRunner(long num, int start, int end) {
     this.start = start;
     this.end = end;
+    this.num = num;
+  }
+  ArrayList<Long> getFactors() {
+    return fac;
   }
   public void run() {
-
+    fac = (factorizePara(num, start, end));
+    try {
+      bwait.await();
+      bfinish.await();
+    } catch (Exception e) {return;}
   }
 }
 
