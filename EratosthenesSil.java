@@ -40,7 +40,7 @@ public class EratosthenesSil {
   int  maxNum;
   long faNum;
 
-  static int numberOfTests = 9;
+  static int numberOfTests = 1;
 
   // kanskje trenge du disse
   final int [] bitMask = {1,2,4,8,16,32,64};
@@ -84,18 +84,21 @@ EratosthenesSil (int maxNum) {
 void runTest(int numberOfTests) {
   //System.out.println("Ran with " + numberOfTests + " tests.");
   System.out.print("Erastosthenes Sil sekvensielt: ");
-  System.out.println(runEraSeqTest(numberOfTests));
+  System.out.println(runEraSeqTest(numberOfTests) + "ms.");
   System.out.print("Number of primes seq: ");
   System.out.println(countAllPrimes());
   System.out.print("Erastosthenes Sil parallelt: ");
-  System.out.println(runEraParTest(numberOfTests));
+  System.out.println(runEraParTest(numberOfTests) + "ms.");
   System.out.print("Number of primes para: ");
+  //printAllPrimes();
   System.out.println(countAllPrimes());
   //for (long l: factorize(50)) System.out.print(l + " * ");
   //for (long l: factorize(1999999998)) System.out.print(l + " * ");
   System.out.print("Faktorisering sekvensielt: ");
-  //System.out.println(runFacSeqTest(numberOfTests));
-  splitUp();
+  System.out.println(runFacSeqTest(numberOfTests) + "ms.");
+  System.out.println();
+  System.out.print("Faktorisering parallelt: ");
+  System.out.println(runFacParTest(numberOfTests));
 }
 
 
@@ -131,7 +134,7 @@ double runEraParTest(int n) {
   long [] times = new long [n];
   for (int i = 0; i < numberOfTests; i++)
   {
-    this.setAllPrime();
+    setAllPrime();
     starttime = System.nanoTime();
     EratosthenesSieveRun();
     times[i] = System.nanoTime() - starttime;
@@ -149,12 +152,13 @@ double runEraParTest(int n) {
  * Runs the seq Fac tests.
  */
 double runFacSeqTest(int n) {
-  boolean debug = false;
+  boolean debug = true;
+  if (debug) System.out.println();
   long time, starttime;
   long [] times = new long [n];
   for (int i = 0; i < n; i++) {
     starttime = System.nanoTime();
-    for (long j = (long)maxNum * maxNum - 0; j <= (long)maxNum * maxNum; j++)
+    for (long j = (long)maxNum * maxNum - 10; j <= (long)maxNum * maxNum; j++)
     {
       if (!debug) factorize(j);
       if (debug) {
@@ -176,8 +180,26 @@ double runFacSeqTest(int n) {
 /**
  * Runs the para Fac tests.
  */
-double runFacParTest() {
-  return -1;
+double runFacParTest(int n) {
+  boolean debug = true;
+  long time, starttime;
+  long [] times = new long [n];
+  for (int i = 0; i < n; i++) {
+    starttime = System.nanoTime();
+    for (long j = (long)maxNum * maxNum - 10; j <= (long)maxNum * maxNum; j++)
+    {
+      if (!debug) factorizeParaRun(j);      
+      if (debug) {
+        System.out.print(((long)maxNum*maxNum) - j + ": " + j + " : ");
+        for (long l: factorizeParaRun(j)) System.out.print(l + " * ");
+        System.out.println();
+      }
+    }
+    times[i] = System.nanoTime() - starttime;
+    //System.out.println(times[i]/1000000.0);
+    Arrays.sort(times);
+  }
+  return times[numberOfTests/2]/1000000.0;
 }
 
 
@@ -186,61 +208,51 @@ double runFacParTest() {
 /**
  * Split up array to factorize.
  */
-void splitUp() {
+ArrayList<Long> factorizeParaRun(long num) {
+  boolean debug = true;
   int q = Runtime.getRuntime().availableProcessors();
-  String s;
-  String nl = "\n";
   int numberOfPrimes = countAllPrimes();
-  s = "Split up the primes" + nl;
-  s += "We got " + numberOfPrimes + " primes." + nl;
-  System.out.println(s);
-  s = "If we split up number of primes: " + nl;
-  int startpoint;
-  int stoppoint;
+  int startpoint, stoppoint;
+  int primeSum = 0;
+  ArrayList<Long> fac = new ArrayList<Long>();
+  ArrayList<ArrayList<Long>> l = new ArrayList<ArrayList<Long>>(q);
   for (int i = 0; i < q; i++) {
     startpoint = numberOfPrimes / q * i;
-    s += "Startpoint: " 
-      + startpoint
-      + " to ";
-
-    if (i == q - 1) 
-      stoppoint = numberOfPrimes;
-    else 
-      stoppoint = (numberOfPrimes / q * (i + 1) - 1);
-    s += stoppoint;
-    int prime;
-    s += nl + "Let's print out the primes" + nl;
-    s += "(And count them)";
-    // finne et antall primer
-    //prime = nextPrime(
-    //while (primeCount < primeRange) {
-      //prime = nextPrime(
-
-    //}
+    if (i == q - 1) stoppoint = numberOfPrimes;
+    else stoppoint = (numberOfPrimes / q * (i + 1) - 1);
+    // denne må flyttes til para.
+    l.add(factorizePara(num, startpoint, stoppoint));
   } // end for i 
-  s += " Should we use -1 here? Check with nextPrime." + nl
-    + "De we count a prime 0 as one (probably not in this case.)" + nl
-    + "(We can modify countAllPrimes() to count a range.)";
+  long product = 1;
+  // Kjøre denne  etter at run er ferdig kjørt.
+  if (debug) System.out.println("Print out multipliers: ");
+  for (ArrayList<Long> list : l) {
+    for (long n : list) {
+      if (debug) System.out.print(n + " * ");
+      fac.add(n);
+      product *= n;
+    }
+  }
 
+  if (product != num) {
+    System.out.println("should add something here.");
+    fac.add (num / product);
+    product *= num / product;
+  }
 
-  s += nl + "Or if we split up by numbers: " + nl;
+  if (debug) {
+  System.out.println();
+  System.out.println("Number we were testing:\t" + num);
+  System.out.println("Product:\t\t" + product);
+  System.out.println("Are they the same?");
+  System.out.println(product == num);
+  }
 
-  for (int i = 0; i < q; i++) {
-    s += "Startpoint: "
-      + maxNum / q * i
-      + " to ";
-    if (i == q - 1)
-      s += maxNum + "(- 1?)" + nl;
-    else
-      s += (maxNum / q * (i + 1) - 1) + nl;
-  } // end for i
-  // Finne primer mellom to tall.
-    //while (nextPrime(prime) < stopPoint) {
-  // while()
-  System.out.println(s);
   // Dirty løsning ved å del opp i q -1 antall trårder og så
   // dele opp det første området i 1/3 og 2/3 i hver sin tråd?
+  return fac;
 }
+
 
 
 
@@ -456,20 +468,23 @@ ArrayList<Long> factorize (long num) {
  */
 ArrayList<Long> factorizePara (long num, int start, int end) {
   ArrayList <Long> fac = new ArrayList <Long>();
-  int n = nextPrime(0);
+  int prime = 0;
+  int primeCount = 0;
+  int primeRange = end - start + 1;
   long facNum = num;
-  //System.out.println(num);
-  //System.out.println(facNum);
-  while (n < Math.sqrt(num) && facNum != 1) {
-    if (n == -1) {
-      fac.add(facNum);
-      break;
-    }
-    if (facNum % n == 0) {
-      fac.add((long) n);
-      facNum /= n;
+  if (start == 0) primeRange -= 1;
+  for (int j = 0; j <= start; j++) prime = nextPrime(prime);
+  while (primeCount < primeRange) {
+    // Mulig denne blir overflødig i den parallelliserte utgaven.
+    /*   fac.add(facNum); */
+    if (prime == -1) break;
+    if (facNum % prime == 0) {
+      fac.add((long) prime);
+      //System.out.println(prime);
+      facNum /= prime;
     } else {
-      n = nextPrime(n);
+      prime = nextPrime(prime);
+      primeCount++;
     }
   }
   return fac;
@@ -501,8 +516,19 @@ class SieveRunner implements Runnable {
   }
 }
 
+
+
+
 class FactorizeRunner implements Runnable {
-  public void run() {}
+  ArrayList<Long> fac = new ArrayList<Long>();
+  int start, end;
+  FactorizeRunner(int start, int e) {
+    this.start = start;
+    this.end = end;
+  }
+  public void run() {
+
+  }
 }
 
 
