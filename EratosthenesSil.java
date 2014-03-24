@@ -209,7 +209,7 @@
  *
  *
  *
- *
+ */
 
 
 //
@@ -241,9 +241,8 @@ public class EratosthenesSil {
   byte [] bitArr;
   // all primes in this bit-array is <= maxNum
   int  maxNum;
-  long faNum;
 
-  static int numberOfTests = 1;
+  static int numberOfTests = 18;
 
   final static int q = Runtime.getRuntime().availableProcessors();
 
@@ -275,7 +274,6 @@ public static void main (String [] args) {
  */
 EratosthenesSil (int maxNum) {
   this.maxNum = maxNum;
-  this.faNum = (long) maxNum * maxNum;
   bitArr = new byte [(maxNum/14)+1];
   setAllPrime();
 } // end konstruktor EratostenesSil
@@ -296,31 +294,31 @@ void runTest(int numberOfTests) {
   System.out.print("Number of primes seq: ");
   System.out.println(countAllPrimes());
   System.out.print("Erastosthenes Sil parallelt: ");
-  System.out.println((eraPara = runEraParTest(numberOfTests)) + "ms.");
-  System.out.print("Number of primes para: ");
+  //System.out.println((eraPara = runEraParTest(numberOfTests)) + "ms.");
+  //System.out.print("Number of primes para: ");
   //printAllPrimes();
-  System.out.println(countAllPrimes());
+  //System.out.println(countAllPrimes());
   //for (long l: factorize(50)) System.out.print(l + " * ");
   //for (long l: factorize(1999999998)) System.out.print(l + " * ");
   System.out.print("Faktorisering sekvensielt: ");
   System.out.println((facSeq = runFacSeqTest(numberOfTests)) + "ms.");
   System.out.println();
-  System.out.print("Faktorisering parallelt: ");
-  System.out.println((facPara = runFacParTest(numberOfTests)) + "ms.");
+  //System.out.print("Faktorisering parallelt: ");
+  //System.out.println((facPara = runFacParTest(numberOfTests)) + "ms.");
 
   s = "Tider brukt: " + nl;
   s += "Sekvensiell Erast. sil: " + eraSeq + nl;
-  s += "Parallell Erast. sil: " + eraPara + nl;
+  //s += "Parallell Erast. sil: " + eraPara + nl;
   s += "Sekvensiell faktorisering: " + facSeq + nl;
-  s += "Parallell faktoriserign: " + facPara + nl;
+  //s += "Parallell faktoriserign: " + facPara + nl;
   s += "Med N på " + maxNum + nl;
   s += "og faktoriserer " + (long) maxNum * maxNum + nl;
-  s += "Speedup for parallellisert Erastosthenes sil: " + nl;
-  s += eraSeq / eraPara + nl;
-  s += "Speedup for parallellisert faktorisering: " + nl;
-  s += facSeq / facPara + nl;
+  //s += "Speedup for parallellisert Erastosthenes sil: " + nl;
+  //s += eraSeq / eraPara + nl;
+  //s += "Speedup for parallellisert faktorisering: " + nl;
+  //s += facSeq / facPara + nl;
   s += "Snitt tid sekvensiell faktorisering: " + nl + (facSeq / 100);
-  s += "Snitt tid parallell faktorisering: " + (facPara / 100);
+  //s += "Snitt tid parallell faktorisering: " + (facPara / 100);
   System.out.println(s);
 }
 
@@ -375,7 +373,7 @@ double runEraParTest(int n) {
  * Runs the seq Fac tests.
  */
 double runFacSeqTest(int n) {
-  boolean debug = true;
+  boolean debug = false;
   if (debug) System.out.println();
   long time, starttime;
   long [] times = new long [n];
@@ -503,8 +501,8 @@ void crossOut(int i) {
  * @param i what integer to check.
  */
 boolean isPrime (int i) {
-  if (i == 2) return true;
-  if (i%2 == 0) return false;
+  //if (i == 2) return true;
+  //if (i%2 == 0) return false;
   if ((bitArr[i / 14] >> i%14/2 & 1) == 1) return true;
   return false;
 } // end isPrime
@@ -530,7 +528,21 @@ boolean checkPrime (int n) {
  * @return next prime after number @param i
  */
 int nextPrime(int i) {
-  for (int j = i+1; j <= maxNum; j++) if (isPrime(j)) return j;
+  if(i%2==0) i+=1;
+  else i+=2;
+  for (; i <= maxNum; i+=2) if (isPrime(i)) return i;
+  return  -1;
+} // end nextTrue
+
+
+
+
+/**
+ * Finds the next prime.
+ * @return next prime after number @param i
+ */
+int nextPrime(int i, int t) {
+  for (int j = i+1; j <= maxNum; j+=2) if (isPrime(j)) return j;
   return  -1;
 } // end nextTrue
 
@@ -539,10 +551,11 @@ int nextPrime(int i) {
 
 /**
  * Counts how many primes found with Eratosthenes method.
+ * c starts at 1 for 2, else it does not check for even numbers.
  */
 int countAllPrimes() {
-  int c = 0;
-  for (int i = 2; i <= maxNum; i++)
+  int c = 1;
+  for (int i = 3; i <= maxNum; i+=2)
     if (isPrime(i)) c++;
   return c;
 }
@@ -657,20 +670,33 @@ void generatePrimesByEratosthenesPara(int index, int startByte, int endByte) {
  * @return an arraylist with the multiples in a factorized number @param num
  */
 ArrayList<Long> factorize (long num) {
+  String s;
+  //s = "Factorizing " + num + ": ";
+  //System.out.println(s);
+  //boolean debug = false;
   ArrayList <Long> fac = new ArrayList <Long>();
-  int n = nextPrime(0);
+  int n = 2;
   long facNum = num;
-  //System.out.println(num);
-  //System.out.println(facNum);
   while (n < Math.sqrt(num) && facNum != 1) {
+    //if (debug) System.out.println("N is now: " + n);
     if (n == -1) {
+      //if (debug) System.out.println("Breaking; Adding facNum now: " + facNum);
       fac.add(facNum);
       break;
     }
     if (facNum % n == 0) {
       fac.add((long) n);
-      facNum /= n;
+      //if (debug) System.out.println("###Adding N now: " + n);
+      //if (debug) System.out.println("Deviding facNum (" + facNum + ") - N now: " + n 
+          //+ " facNum is now: " + (facNum /= n));
+      //else 
+        facNum /= n;
     } else {
+      s = "facNum (" + facNum + ") is not devidable with n (" + n + ") without rest";
+      /*if (debug) System.out.println(s);
+      if (debug) System.out.println("Finding next prime - N now: " 
+          + n + " And now it's: " + (n = nextPrime(n)));
+      else */
       n = nextPrime(n);
     }
   }
