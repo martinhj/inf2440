@@ -242,7 +242,7 @@ public class EratosthenesSil {
   // all primes in this bit-array is <= maxNum
   int  maxNum;
 
-  static int numberOfTests = 18;
+  static int numberOfTests = 1;
 
   final static int q = Runtime.getRuntime().availableProcessors();
 
@@ -303,22 +303,22 @@ void runTest(int numberOfTests) {
   System.out.print("Faktorisering sekvensielt: ");
   System.out.println((facSeq = runFacSeqTest(numberOfTests)) + "ms.");
   System.out.println();
-  //System.out.print("Faktorisering parallelt: ");
-  //System.out.println((facPara = runFacParTest(numberOfTests)) + "ms.");
+  System.out.print("Faktorisering parallelt: ");
+  System.out.println((facPara = runFacParTest(numberOfTests)) + "ms.");
 
   s = "Tider brukt: " + nl;
   s += "Sekvensiell Erast. sil: " + eraSeq + nl;
   //s += "Parallell Erast. sil: " + eraPara + nl;
   s += "Sekvensiell faktorisering: " + facSeq + nl;
-  //s += "Parallell faktoriserign: " + facPara + nl;
+  s += "Parallell faktoriserign: " + facPara + nl;
   s += "Med N på " + maxNum + nl;
   s += "og faktoriserer " + (long) maxNum * maxNum + nl;
   //s += "Speedup for parallellisert Erastosthenes sil: " + nl;
   //s += eraSeq / eraPara + nl;
-  //s += "Speedup for parallellisert faktorisering: " + nl;
-  //s += facSeq / facPara + nl;
-  s += "Snitt tid sekvensiell faktorisering: " + nl + (facSeq / 100);
-  //s += "Snitt tid parallell faktorisering: " + (facPara / 100);
+  s += "Speedup for parallellisert faktorisering: " + nl;
+  s += facSeq / facPara + nl;
+  s += "Snitt tid sekvensiell faktorisering: " + nl + (facSeq / 100) + nl;
+  s += "Snitt tid parallell faktorisering: " + nl +  (facPara / 100) +nl;
   System.out.println(s);
 }
 
@@ -373,7 +373,7 @@ double runEraParTest(int n) {
  * Runs the seq Fac tests.
  */
 double runFacSeqTest(int n) {
-  boolean debug = false;
+  boolean debug = true;
   if (debug) System.out.println();
   long time, starttime;
   long [] times = new long [n];
@@ -383,7 +383,7 @@ double runFacSeqTest(int n) {
     {
       if (!debug) factorize(j);
       if (debug) {
-        System.out.print(((long)maxNum*maxNum) - j + ": " + j + " : ");
+        System.out.print("s: " + (((long)maxNum*maxNum) - j) + ": " + j + " : ");
         for (long l: factorize(j)) System.out.print(l + " * ");
         System.out.println();
       }
@@ -401,7 +401,7 @@ double runFacSeqTest(int n) {
  * Runs the para Fac tests.
  */
 double runFacParTest(int n) {
-  boolean debug = true;
+  boolean debug = false;
   long time, starttime;
   long [] times = new long [n];
   for (int i = 0; i < n; i++) {
@@ -410,7 +410,7 @@ double runFacParTest(int n) {
     {
       if (!debug) factorizeParaRun(j);      
       if (debug) {
-        System.out.print(((long)maxNum*maxNum) - j + ": " + j + " : ");
+        System.out.print("p: " +(((long)maxNum*maxNum) - j) + ": " + j + " : ");
         for (long l: factorizeParaRun(j)) System.out.print(l + " * ");
         System.out.println();
       }
@@ -489,8 +489,8 @@ void setAllPrime() {
  * @param i what integer to uncheck.
  */
 void crossOut(int i) {
-  bitArr[i/14] = (byte)(bitArr[i/14] & ~(1 << i%14/2));
-  if (debug) System.out.println("removing " + i);
+  //bitArr[i/14] = (byte)(bitArr[i/14] & ~(1 << i%14/2));
+  bitArr[i/14] &= bitMask2[(i%14) >> 1];
 } // end crossOut
 
 
@@ -503,8 +503,10 @@ void crossOut(int i) {
 boolean isPrime (int i) {
   //if (i == 2) return true;
   //if (i%2 == 0) return false;
-  if ((bitArr[i / 14] >> i%14/2 & 1) == 1) return true;
-  return false;
+  //if ((bitArr[i / 14] >> i%14/2 & 1) == 1) return true;
+  return (bitArr[i / 14] & bitMask[(i%14)>>1]) != 0;
+  //if ((bitArr[i / 14] & bitMask[(i%14)>>1]) != 0) return true;
+  //return false;
 } // end isPrime
 
 
@@ -530,8 +532,8 @@ boolean checkPrime (int n) {
 int nextPrime(int i) {
   if(i%2==0) i+=1;
   else i+=2;
-  for (; i <= maxNum; i+=2) if (isPrime(i)) return i;
-  return  -1;
+  while(!isPrime(i)) i+=2;
+  return  i;
 } // end nextTrue
 
 
@@ -692,7 +694,7 @@ ArrayList<Long> factorize (long num) {
       //else 
         facNum /= n;
     } else {
-      s = "facNum (" + facNum + ") is not devidable with n (" + n + ") without rest";
+      //s = "facNum (" + facNum + ") is not devidable with n (" + n + ") without rest";
       /*if (debug) System.out.println(s);
       if (debug) System.out.println("Finding next prime - N now: " 
           + n + " And now it's: " + (n = nextPrime(n)));
@@ -721,7 +723,7 @@ ArrayList<Long> factorizePara (long num, int start, int end) {
   while (primeCount < primeRange) {
     // Mulig denne blir overflødig i den parallelliserte utgaven.
     /*   fac.add(facNum); */
-    if (prime == -1) break;
+    //if (prime == -1) break;
     if (facNum % prime == 0) {
       fac.add((long) prime);
       facNum /= prime;
