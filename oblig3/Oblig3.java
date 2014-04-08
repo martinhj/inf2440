@@ -10,7 +10,7 @@
 
 
 /* ************************************
- * TODO::
+ * TODO:
  *
  * Trengs det noe utskrift?
  */
@@ -22,11 +22,14 @@
  * import java.util.FileWriter
  */
 import java.util.Random;
+import java.util.Arrays;
+
 
 
 
 class Oblig3 {
   final static int MAX_VALUE = 1000000;
+  static int numberCount = 50000000;
   Random randomg = new Random();
 
 
@@ -35,7 +38,7 @@ class Oblig3 {
   /**
    * Global variables.
    */
-  // boolean debug = false;
+  boolean debug = false;
   // boolean filewrite = false;
 
 
@@ -60,7 +63,8 @@ class Oblig3 {
    * main method. Kicking it all off.
    */
   public static void main (String [] args) {
-    new Oblig3().runTest(1);
+    if (args.length > 0) numberCount = Integer.parseInt(args[0]);
+    new Oblig3().runTest(9);
   }
 
 
@@ -72,13 +76,46 @@ class Oblig3 {
   void runTest(int testCount) {
     String s, nl = "\n";
     s = "***Test***" + nl;
+    double seq, par;
     p(s);
-    int n [] = populate(1000000);
-    radix2(n);
-    for (int i = 0; i < 10; i++)
-      pln("[" + i + "]: " + n[i]);
-    for (int i = n.length - 1; i >= n.length - 10; i--)
-      pln("[" + i + "]: " + n[i]);
+    int n [] = populate(numberCount);
+    seq = runSeqTest(n, testCount);
+    s = "" + seq;
+    p(s);
+  }
+
+
+
+
+  /**
+   * Run radix sort sequential.
+   */
+  double runSeqTest(int [] n, int testCount) {
+    long [] t = new long [testCount];
+    long startTime;
+    for (int i = 0; i < t.length; i++) {
+      startTime = System.nanoTime();
+      radix2(n);
+      t[i] = System.nanoTime() - startTime;
+    }
+    if (debug) {
+      for (int i = 0; i < 10; i++)
+        pln("[" + i + "]: " + n[i]);
+      for (int i = n.length - 1; i >= n.length - 10; i--)
+        pln("[" + i + "]: " + n[i]);
+    }
+    Arrays.sort(t);
+    return t[testCount/2]/1000000.0;
+  }
+
+
+
+
+  /**
+   * Run radix sort in parallel.
+   */
+  double runParTest(int testCount) {
+    return -1;
   }
 
 
@@ -167,6 +204,17 @@ class Oblig3 {
       b[count[(a[i]>>shift) & mask]++] = a[i]; }
   }// end radixSort
 
+
+
+
+
+
+
+
+
+  class RadixRunner {
+    RadixRunner() {}
+  }
 
 
 
