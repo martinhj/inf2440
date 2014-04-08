@@ -26,8 +26,8 @@ import java.util.Random;
 
 
 class Oblig3 {
-  Random randomg = new Random();
   final static int MAX_VALUE = 1000000;
+  Random randomg = new Random();
 
 
 
@@ -46,14 +46,11 @@ class Oblig3 {
    * Constructor.
    */
   Oblig3() {
-    pln("***Test***");
-    int n [] = populate(10);
-    for (int i = 0; i < n.length; i++)
-      pln("" + n[i]);
-    radix2(n);
-    pln("*****************");
-    for (int nt : n)
-      pln("" + nt);
+    //for (int i = 0; i < n.length; i++)
+      //pln("" + n[i]);
+    //pln("*****************");
+    //for (int nt : n)
+      //pln("" + nt);
   } // end constructor
 
 
@@ -63,7 +60,25 @@ class Oblig3 {
    * main method. Kicking it all off.
    */
   public static void main (String [] args) {
-    new Oblig3();
+    new Oblig3().runTest(1);
+  }
+
+
+
+
+  /**
+   * Run timing tests.
+   */
+  void runTest(int testCount) {
+    String s, nl = "\n";
+    s = "***Test***" + nl;
+    p(s);
+    int n [] = populate(1000000);
+    radix2(n);
+    for (int i = 0; i < 10; i++)
+      pln("[" + i + "]: " + n[i]);
+    for (int i = n.length - 1; i >= n.length - 10; i--)
+      pln("[" + i + "]: " + n[i]);
   }
 
 
@@ -73,7 +88,17 @@ class Oblig3 {
    * Print to screen and/or file.
    */
   void pln(String s) {
-    System.out.println(s);
+    p(s + "\n");
+  }
+
+
+
+
+  /**
+   * Print to screen and/or file.
+   */
+  void p(String s) {
+    System.out.print(s);
     //if (filewrite) file.
   }
 
