@@ -329,6 +329,7 @@ void runTest(int numberOfTests) {
  * Runs the seq Era tests.
  */
 double runEraSeqTest(int n) {
+  boolean debug = true;
   long time, starttime;
   long [] times = new long [n];
   for (int i = 0; i < numberOfTests; i++)
@@ -373,7 +374,7 @@ double runEraParTest(int n) {
  * Runs the seq Fac tests.
  */
 double runFacSeqTest(int n) {
-  boolean debug = true;
+  boolean debug = false;
   if (debug) System.out.println();
   long time, starttime;
   long [] times = new long [n];
@@ -569,7 +570,8 @@ int countAllPrimes() {
  * Prints out all numbers that is presented as primes in the bitArr array.
  */
 void printAllPrimes(){
-  for ( int i = 2; i <= maxNum; i++)
+  System.out.println(" " + 2);
+  for ( int i = 3; i <= maxNum; i+=2)
     if (isPrime(i)) System.out.println(" "+i);
 }
 
