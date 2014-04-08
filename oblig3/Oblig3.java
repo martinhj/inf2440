@@ -6,9 +6,32 @@
  *
  */
 
+/* ************************************
+ * TODO::
+ *
+ * Trengs det noe utskrift?
+ */
+
+
+
+
+/*
+ * import java.util.FileWriter
+ */
+
+
 
 
 class Oblig3 {
+
+
+
+  /**
+   * Global variables.
+   */
+  // boolean debug = false;
+  // boolean filewrite = false;
+
 
 
 
@@ -29,6 +52,10 @@ class Oblig3 {
 
   }
 
+
+
+  /**
+   * Print to screen and/or file.
 
 } // end class
 
