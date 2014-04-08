@@ -6,6 +6,9 @@
  *
  */
 
+
+
+
 /* ************************************
  * TODO::
  *
@@ -40,6 +43,7 @@ class Oblig3 {
    * Constructor.
    */
   Oblig3() {
+    pln("Test");
   } // end constructor
 
 
@@ -48,20 +52,29 @@ class Oblig3 {
   /**
    * main method. Kicking it all off.
    */
-  public static void main (String [] args) {
-
+  public static void main (String [] args) {
+    new Oblig3();
   }
+
 
 
 
   /**
    * Print to screen and/or file.
+   */
+  void pln(String s) {
+    System.out.println(s);
+    //if (filewrite) file.
+  }
 
 } // end class
 
 
 
 
+
+
+class Temp {
 
 
 
@@ -79,11 +92,12 @@ static void radix2(int [] a) {
 
   while (max >= (1<<numBit) ) numBit++; // antall siffer i max
 
-  // bestem antall bit i siffer1 og siffer2 int bit1 = numBit/2,
+  // bestem antall bit i siffer1 og siffer2 
+  int bit1 = numBit/2,
   bit2 = numBit-bit1;
   int[] b = new int [a.length];
   radixSort( a, b, bit1, 0); // første siffer fra a[] til b[] radixSort( b,a, bit2, bit1);// andre siffer, tilbake fra b[] til a[]
-} // end
+} // end radix2
 
 
 
@@ -110,3 +124,8 @@ static void radixSort ( int [] a, int [] b, int maskLen, int shift){
   for (int i = 0; i < n; i++) {
     b[count[(a[i]>>shift) & mask]++] = a[i]; }
 }// end radixSort
+
+
+
+
+} // End class Temp
