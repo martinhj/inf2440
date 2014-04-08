@@ -1,3 +1,11 @@
+/*
+ * TODO: Fix jit optimizing.
+ */ 
+
+
+
+
+
 /* *****************************************************************************\
  *          Rapport                                                            *
  * Jeg ser at den sekvensielle faktoriseringen min er langt tregere enn den i  *
