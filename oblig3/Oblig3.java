@@ -13,6 +13,13 @@
  * TODO:
  *
  * Trengs det noe utskrift?
+ * Ta tiden på de forskjellige punktene i radixsort?
+ *
+ * Parallellisere.
+ * a) findMax
+ * b)
+ * c)
+ * d)
  */
 
 
@@ -28,9 +35,6 @@ import java.util.Arrays;
 
 
 class Oblig3 {
-  final static int MAX_VALUE = 1000000;
-  static int numberCount = 50000000;
-  Random randomg = new Random();
 
 
 
@@ -39,6 +43,11 @@ class Oblig3 {
    * Global variables.
    */
   boolean debug = false;
+  final static int MAX_VALUE = 1000000;
+	final static int q = Runtime.getRuntime().availableProcessors();
+  static int testCount = 1;
+  static int numberCount = 50000000;
+  Random randomg = new Random();
   // boolean filewrite = false;
 
 
@@ -49,11 +58,6 @@ class Oblig3 {
    * Constructor.
    */
   Oblig3() {
-    //for (int i = 0; i < n.length; i++)
-      //pln("" + n[i]);
-    //pln("*****************");
-    //for (int nt : n)
-      //pln("" + nt);
   } // end constructor
 
 
@@ -64,7 +68,8 @@ class Oblig3 {
    */
   public static void main (String [] args) {
     if (args.length > 0) numberCount = Integer.parseInt(args[0]);
-    new Oblig3().runTest(9);
+    if (args.length > 1) testCount = Integer.parseInt(args[1]);
+    new Oblig3().runTest(testCount, numberCount);
   }
 
 
@@ -73,12 +78,14 @@ class Oblig3 {
   /**
    * Run timing tests.
    */
-  void runTest(int testCount) {
+  void runTest(int testCount, int numberCount) {
+    double seq, par;
+    int n [] = populate(numberCount);
     String s, nl = "\n";
     s = "***Test***" + nl;
-    double seq, par;
+    s += "Testing with an array with _" + numberCount + "_ random numbers ";
+    s += "and doing it _" + testCount + "_ times " + nl;
     p(s);
-    int n [] = populate(numberCount);
     seq = runSeqTest(n, testCount);
     s = "" + seq;
     p(s);
@@ -124,7 +131,7 @@ class Oblig3 {
   /**
    * Print to screen and/or file.
    */
-  void pln(String s) {
+  static void pln(String s) {
     p(s + "\n");
   }
 
@@ -134,7 +141,7 @@ class Oblig3 {
   /**
    * Print to screen and/or file.
    */
-  void p(String s) {
+  static void p(String s) {
     System.out.print(s);
     //if (filewrite) file.
   }
@@ -160,14 +167,24 @@ class Oblig3 {
    * Radix sort with two digits.
    */
   static void radix2(int [] a) {
+    // debug
+    long starttime = 0,
+         stoptime = 0;
+    boolean debug = true;
     // 2 digit radixSort: a[]
     int max = a[0], numBit = 2;
 
     // a) finn max verdi i a[]
+    if (debug) starttime = System.nanoTime();
     for (int i = 1 ; i < a.length ; i++)
       if (a[i] > max) max = a[i];
+    if (debug) stoptime = System.nanoTime();
+    if (debug) p("a1: " + ((stoptime - starttime)/1000000.0)+ "ms\n");
 
+    if (debug) starttime = System.nanoTime();
     while (max >= (1<<numBit)) numBit++; // antall siffer i max
+    if (debug) stoptime = System.nanoTime();
+    if (debug) p("a2: " + ((stoptime - starttime)/1000000.0)+ "ms\n");
 
     // bestem antall bit i siffer1 og siffer2 
     int bit1 = numBit/2,
@@ -185,23 +202,36 @@ class Oblig3 {
    * Sort a[] on one digit ; number of bits = maskLen, shiftet up ‘shift’ bits.
    */ 
   static void radixSort ( int [] a, int [] b, int maskLen, int shift){
+    boolean debug = true;
     int acumVal = 0, j, n = a.length;
     int mask = (1<<maskLen) -1;
     int [] count = new int [mask+1];
+    // debug
+    long starttime = 0,
+         stoptime = 0;
 
     // b) count=the frequency of each radix value in a 
+    if (debug) starttime = System.nanoTime();
     for (int i = 0; i < n; i++) {
       count[(a[i]>> shift) & mask]++; }
+    if (debug) stoptime = System.nanoTime();
+    if (debug) p("b: " + ((stoptime - starttime)/1000000.0)+ "ms\n");
 
     // c) Add up in 'count' - accumulated values 
+    if (debug) starttime = System.nanoTime();
     for (int i = 0; i <= mask; i++) {
       j = count[i];
       count[i] = acumVal; acumVal += j;
     }
+    if (debug) stoptime = System.nanoTime();
+    if (debug) p("c: " + ((stoptime - starttime)/1000000.0) + "ms\n");
 
     // d) move numbers in sorted order a to b 
+    if (debug) starttime = System.nanoTime();
     for (int i = 0; i < n; i++) {
       b[count[(a[i]>>shift) & mask]++] = a[i]; }
+    if (debug) stoptime = System.nanoTime();
+    if (debug) p("d: " + ((stoptime - starttime)/1000000.0) + "ms\n");
   }// end radixSort
 
 
