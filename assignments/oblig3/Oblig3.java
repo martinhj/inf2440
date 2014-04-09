@@ -30,7 +30,7 @@
  */
 import java.util.Random;
 import java.util.Arrays;
-
+import java.util.concurrent.CyclicBarrier;
 
 
 
@@ -43,12 +43,19 @@ class Oblig3 {
    * Global variables.
    */
   boolean debug = false;
-  final static int MAX_VALUE = 1000000;
+  final static int MAX_VALUE = 100000000;
 	final static int q = Runtime.getRuntime().availableProcessors();
   static int testCount = 1;
   static int numberCount = 500;
   Random randomg = new Random();
+	CyclicBarrier bwait, bfinish;
   // boolean filewrite = false;
+
+
+  /*
+   * findmax global variables.
+   */
+  int [] maxValues;
 
 
 
@@ -58,6 +65,7 @@ class Oblig3 {
    * Constructor.
    */
   Oblig3() {
+     maxValues = new int [q];
   } // end constructor
 
 
@@ -81,15 +89,17 @@ class Oblig3 {
   void runTest(int testCount, int numberCount) {
     double seq, par;
     int n [] = populate(numberCount);
+    int b [] = n.clone();
     String s, nl = "\n";
     s = "***Test***" + nl;
     s += "Testing with an array with _" + numberCount + "_ random numbers ";
     s += "and doing it _" + testCount + "_ times " + nl;
     pln(s);
-    seq = runSeqTest(n, testCount);
+    seq = runSeqTest(b, testCount);
     s = "Seq: " + seq;
     pln(s);
-    par = runParTest(n, testCount);
+    b = n.clone();
+    par = runParTest(b, testCount);
     s = "Par: " + par;
     pln(s);
   }
@@ -195,17 +205,6 @@ class Oblig3 {
 
 
 
-
-  static int findMaxPar(int [] n) {
-    int l;
-    l = n.length;
-    for (int i = 0; i < q; i++) {
-      if (i != q - 1 ) findMax(n, l/q*i, l/q*(i+1)-1);
-      else findMax(n, l/q*i, l-1);
-    }
-    return -1;
-  }
-
   /**
    * Finds the largest value in the range between {@code startpoint}
    * and {@code endpoint} in an int array {@code n}.
@@ -213,10 +212,13 @@ class Oblig3 {
    * @param startpoint
    * @param endpoint
    */
-  static int findMax(int [] n, int startpoint, int endpoint) {
-    pln("In array n we got: " + startpoint + " as a startpoint and " 
+  int findMax(int [] n, int startpoint, int endpoint) {
+    if (debug) pln("In array n we got: " + startpoint + " as a startpoint and "
         + endpoint + " as a endpoint.");
-    return -1;
+    int max = 0;
+    for (int i = startpoint; i <= endpoint; i++)
+      if (n[i] > max) max = n[i];
+    return max;
   }
 
 
@@ -225,30 +227,33 @@ class Oblig3 {
   /** 
    * Parallel version of radix sort with two digits.
    */
-  static void radix2Par(int [] a) {
-    findMaxPar(a);
+  void radix2Par(int [] a) {
+    int l;
+    bwait = new CyclicBarrier(q + 1);
+    bfinish = new CyclicBarrier(q + 1);
+    RadixRunner [] t = new RadixRunner [q];
+    l = a.length;
+    // initiere trådene
+    long starttime = System.nanoTime();
+    //sets maxValues[0] as max
+    for (int i = 0; i < q; i++) {
+      if (i != q - 1 )
+        new Thread(t[i] = new RadixRunner(i, a, l/q*i, l/q*(i+1)-1)).start();
+      else
+        new Thread(t[i] = new RadixRunner(i, a, l/q*i, l-1)).start();
+    }
+    // a, kjøre findmax
+    try {
+      bwait.await();
+    } catch (Exception e) {return;}
+    try {
+      bfinish.await();
+    } catch (Exception e) {return;}
+    pln("a1 (para findmax): " + (System.nanoTime() - starttime)/1000000.0);
+    System.out.println("par max: " + maxValues[0]);
 
 
 
-    /*
-    // 2 digit radixSort: a[]
-    int max = a[0], numBit = 2;
-
-    // a) finn max verdi i a[]
-    for (int i = 1 ; i < a.length ; i++)
-      if (a[i] > max) max = a[i];
-
-    while (max >= (1<<numBit)) numBit++; // antall siffer i max
-
-    // bestem antall bit i siffer1 og siffer2 
-    int bit1 = numBit/2,
-        bit2 = numBit-bit1;
-    int[] b = new int [a.length];
-    radixSort(a, b, bit1, 0); // første siffer fra a[] til b[]
-    radixSort(b, a, bit2, bit1);// andre siffer, tilbake fra b[] til a[]
-
-  } // end radix2
-    */
   }
 
 
@@ -269,6 +274,7 @@ class Oblig3 {
     if (debug) starttime = System.nanoTime();
     for (int i = 1 ; i < a.length ; i++)
       if (a[i] > max) max = a[i];
+    pln("seq max: " + max);
     if (debug) stoptime = System.nanoTime();
     if (debug) p("a1: " + ((stoptime - starttime)/1000000.0)+ "ms\n");
 
@@ -338,11 +344,44 @@ class Oblig3 {
   /**
    * This class is a help class to start code in the different threads.
    * It will reuse the threads for each step in the process.
+   * @param index         What thread.
+   * @param a             What array.
+   * @param startpoint    First value which the thread got responsibility for.
+   * @param endpoint      Last value which the thread got responsibility for.
    */
-  class RadixRunner {
-    RadixRunner() {}
+  class RadixRunner implements Runnable {
+    int index, startpoint, endpoint;
+    int [] a;
+    RadixRunner(int index, int [] a, int startpoint, int endpoint) {
+      this.index = index;
+      this.startpoint = startpoint;
+      this.endpoint = endpoint;
+      this.a = a;
+    }
+    public void run() {
+      pfindMax();
+      try {
+        bwait.await();
+      } catch (Exception e) {return;}
+      // sets the maxValues[0] as max.
+      if (index == 0) {
+        for (int i = 1; i < maxValues.length; i++)
+         if (maxValues[i] > maxValues[0]) maxValues[0] = maxValues[i];
+      }
+      try {
+        bfinish.await();
+      } catch (Exception e) {return;}
+    }
+    /* a */
+    void pfindMax() {
+      maxValues[index] = findMax(a, startpoint, endpoint);
+    }
+    /*b*/
+    /*c*/
+    /*d*/
   } // End Class RadixRunner
 
 
 
 } // End Oblig3 class
+//pln(Thread.currentThread().getName() + " running");
