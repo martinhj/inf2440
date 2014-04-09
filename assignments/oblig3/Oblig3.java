@@ -46,7 +46,7 @@ class Oblig3 {
   final static int MAX_VALUE = 1000000;
 	final static int q = Runtime.getRuntime().availableProcessors();
   static int testCount = 1;
-  static int numberCount = 50000000;
+  static int numberCount = 500;
   Random randomg = new Random();
   // boolean filewrite = false;
 
@@ -85,10 +85,13 @@ class Oblig3 {
     s = "***Test***" + nl;
     s += "Testing with an array with _" + numberCount + "_ random numbers ";
     s += "and doing it _" + testCount + "_ times " + nl;
-    p(s);
+    pln(s);
     seq = runSeqTest(n, testCount);
-    s = "" + seq;
-    p(s);
+    s = "Seq: " + seq;
+    pln(s);
+    par = runParTest(n, testCount);
+    s = "Par: " + par;
+    pln(s);
   }
 
 
@@ -121,8 +124,27 @@ class Oblig3 {
   /**
    * Run radix sort in parallel.
    */
-  double runParTest(int testCount) {
-    return -1;
+  double runParTest(int [] n, int testCount) {
+    //a
+    /* FindMax */
+    //b
+    //c
+    //d
+    long [] t = new long [testCount];
+    long startTime;
+    for (int i = 0; i < t.length; i++) {
+      startTime = System.nanoTime();
+      radix2Par(n);
+      t[i] = System.nanoTime() - startTime;
+    }
+    if (debug) {
+      for (int i = 0; i < 10; i++)
+        pln("[" + i + "]: " + n[i]);
+      for (int i = n.length - 1; i >= n.length - 10; i--)
+        pln("[" + i + "]: " + n[i]);
+    }
+    Arrays.sort(t);
+    return t[testCount/2]/1000000.0;
   }
 
 
@@ -133,6 +155,16 @@ class Oblig3 {
    */
   static void pln(String s) {
     p(s + "\n");
+  }
+
+
+
+
+  /**
+   * Print to screen and/or file.
+   */
+  static void pln() {
+    p("\n");
   }
 
 
@@ -158,6 +190,65 @@ class Oblig3 {
       ns[i] = randomg.nextInt(MAX_VALUE);
     }
     return ns;
+  }
+
+
+
+
+
+  static int findMaxPar(int [] n) {
+    int l;
+    l = n.length;
+    for (int i = 0; i < q; i++) {
+      if (i != q - 1 ) findMax(n, l/q*i, l/q*(i+1)-1);
+      else findMax(n, l/q*i, l-1);
+    }
+    return -1;
+  }
+
+  /**
+   * Finds the largest value in the range between {@code startpoint}
+   * and {@code endpoint} in an int array {@code n}.
+   * @param n
+   * @param startpoint
+   * @param endpoint
+   */
+  static int findMax(int [] n, int startpoint, int endpoint) {
+    pln("In array n we got: " + startpoint + " as a startpoint and " 
+        + endpoint + " as a endpoint.");
+    return -1;
+  }
+
+
+
+
+  /** 
+   * Parallel version of radix sort with two digits.
+   */
+  static void radix2Par(int [] a) {
+    findMaxPar(a);
+
+
+
+    /*
+    // 2 digit radixSort: a[]
+    int max = a[0], numBit = 2;
+
+    // a) finn max verdi i a[]
+    for (int i = 1 ; i < a.length ; i++)
+      if (a[i] > max) max = a[i];
+
+    while (max >= (1<<numBit)) numBit++; // antall siffer i max
+
+    // bestem antall bit i siffer1 og siffer2 
+    int bit1 = numBit/2,
+        bit2 = numBit-bit1;
+    int[] b = new int [a.length];
+    radixSort(a, b, bit1, 0); // første siffer fra a[] til b[]
+    radixSort(b, a, bit2, bit1);// andre siffer, tilbake fra b[] til a[]
+
+  } // end radix2
+    */
   }
 
 
@@ -244,9 +335,13 @@ class Oblig3 {
 
 
 
+  /**
+   * This class is a help class to start code in the different threads.
+   * It will reuse the threads for each step in the process.
+   */
   class RadixRunner {
     RadixRunner() {}
-  }
+  } // End Class RadixRunner
 
 
 
