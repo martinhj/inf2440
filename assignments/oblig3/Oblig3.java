@@ -113,16 +113,17 @@ class Oblig3 {
   double runSeqTest(int [] n, int testCount) {
     long [] t = new long [testCount];
     long startTime;
+    int b [] = n.clone();
     for (int i = 0; i < t.length; i++) {
       startTime = System.nanoTime();
-      radix2(n);
+      radix2(b);
       t[i] = System.nanoTime() - startTime;
     }
     if (debug) {
       for (int i = 0; i < 10; i++)
-        pln("[" + i + "]: " + n[i]);
-      for (int i = n.length - 1; i >= n.length - 10; i--)
-        pln("[" + i + "]: " + n[i]);
+        pln("[" + i + "]: " + b[i]);
+      for (int i = b.length - 1; i >= b.length - 10; i--)
+        pln("[" + i + "]: " + b[i]);
     }
     Arrays.sort(t);
     return t[testCount/2]/1000000.0;
@@ -142,16 +143,17 @@ class Oblig3 {
     //d
     long [] t = new long [testCount];
     long startTime;
+    int b [] = n.clone();
     for (int i = 0; i < t.length; i++) {
       startTime = System.nanoTime();
-      radix2Par(n);
+      radix2Par(b);
       t[i] = System.nanoTime() - startTime;
     }
     if (debug) {
       for (int i = 0; i < 10; i++)
-        pln("[" + i + "]: " + n[i]);
-      for (int i = n.length - 1; i >= n.length - 10; i--)
-        pln("[" + i + "]: " + n[i]);
+        pln("[" + i + "]: " + b[i]);
+      for (int i = b.length - 1; i >= b.length - 10; i--)
+        pln("[" + i + "]: " + b[i]);
     }
     Arrays.sort(t);
     return t[testCount/2]/1000000.0;
