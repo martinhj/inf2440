@@ -4,11 +4,14 @@
 // threads.
 
 
+// Lag utregning for speedup!
+
 // rapportinfo i bånn av fila.
 // obs på hvor en måler hvor lang tid det tar!
 // RB1:Test å sette runners[i].start(); i samme forløkka som trådene startes opp
 // RB2: Er feil. Første tråd overlapper et tall med andre, så det blir da tall
 // som ikke blir regnet med på slutten.
+
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.CyclicBarrier;
@@ -20,7 +23,7 @@ class MaxValueOfArray {
 ArrayList<String> results = new ArrayList<String>();
 ArrayList<Long> times = new ArrayList<Long>();
 ArrayList<Integer> findings = new ArrayList<Integer>();
-static int n = 100000000;
+static int n = 1000000;
 int numberContainer[];
 int largest;
 int rest, pl, l;
@@ -86,7 +89,7 @@ String findLargestA() {
     largest = 0;
     long time = 0;
     long startTime = System.nanoTime();
-    for (int i = 0; i < numberContainer.length; i++)
+    for (int i = 0; i < n; i++)
         if (numberContainer[i] > largest) largest = numberContainer[i];
     time = System.nanoTime() - startTime;
     String report = "Seq   largest " + largest + ". ";
@@ -154,8 +157,7 @@ void findLargestJoin() {
     pl = numberContainer.length/cq;
     l = numberContainer.length;
     for (int i = 0; i < cq; i++) {
-        t[i] = new Thread(new RBJoin(i));
-        t[i].start();
+        (t[i] = new Thread(new RBJoin(i))).start();
     }
     for (int i = 0; i < cq; i++) {
         try {
@@ -319,6 +321,14 @@ class RBSem extends Runner {
             if (numberContainer[j] > largestL)
                 largestL = numberContainer[j];
         }
+        // Dette løser presisjonsproblemet. Ser ikke ut som det har så mye å si
+        // for kjøretiden (en test per tråd med noen uthentinger + igangkjøring
+        // og testing på rest hvis denne finnes).
+        if (i == cq - 1) 
+            for (int j = i*pl+pl; j < n; j++) {
+                largestL = numberContainer[j];
+                System.out.println(j);
+            }
         largestc[i] = largestL;
     }
     void findLargestGlobal() {
