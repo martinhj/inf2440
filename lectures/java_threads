@@ -1,0 +1,6 @@
+lage runnable object -> implementere grensesnittet 'Runnable'
+    - implementere metoden void run()
+blir en ny tråd ved at koden i run() settes igang i en ny tråd.
+
+
+
