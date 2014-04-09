@@ -1,0 +1,32 @@
+#Seminar 28. januar 2013
+
+##JOIN
+
+`` 
+// Starte opp trådene.
+Thread[] t = new Thread[4];
+    for (int i = 0; i < t.length; i++) {
+        t[i] = new Thread();
+        t.start();
+    }
+// Vente på at trådene skal terminere
+// Sjekker at alle er terminert før den går videre etter dette.
+for (...) (eller while?)
+        t[i].join();
+``
+
+## CyclicBarrier
+``
+CyclicBarrier b = new CyclicBarrier (10 + 1);
+b.await();  // må vente på 11 b.await før den går videre (gjelder for alle
+            // tråder, også main()
+``
+## Semaphore
+``Semaphore s = new Semaphore(-10+1);
+s.realease(); // når tråden er ferdig slipper den ut 1
+s.acquire(); // da det starter ut med -10+1, venter s.acquire i main til det
+             //blir et positivt antall semaphorer ledig før den kan gå videre -
+             // Det blir ikke det før 10 tråder har gjort s.realease (økt -9 til
+             // +1)
+``
+
