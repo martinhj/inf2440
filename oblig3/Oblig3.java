@@ -182,7 +182,9 @@ class Oblig3 {
     if (debug) p("a1: " + ((stoptime - starttime)/1000000.0)+ "ms\n");
 
     if (debug) starttime = System.nanoTime();
+    if (debug) System.out.println("nb: " + numBit);
     while (max >= (1<<numBit)) numBit++; // antall siffer i max
+    if (debug) System.out.println("nb: " + numBit);
     if (debug) stoptime = System.nanoTime();
     if (debug) p("a2: " + ((stoptime - starttime)/1000000.0)+ "ms\n");
 
