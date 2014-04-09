@@ -88,8 +88,8 @@ class Oblig3 {
    */
   void runTest(int testCount, int numberCount) {
     double seq, par;
-    int n [] = populate(numberCount);
-    int b [] = n.clone();
+    int m [] = populate(numberCount);
+    int b [] = m.clone();
     String s, nl = "\n";
     s = "***Test***" + nl;
     s += "Testing with an array with _" + numberCount + "_ random numbers ";
@@ -98,7 +98,7 @@ class Oblig3 {
     seq = runSeqTest(b, testCount);
     s = "Seq: " + seq;
     pln(s);
-    b = n.clone();
+    b = m.clone();
     par = runParTest(b, testCount);
     s = "Par: " + par;
     pln(s);
@@ -113,16 +113,12 @@ class Oblig3 {
   double runSeqTest(int [] n, int testCount) {
     long [] t = new long [testCount];
     long startTime;
+    int b [];
     for (int i = 0; i < t.length; i++) {
+      b = n.clone();
       startTime = System.nanoTime();
-      radix2(n);
+      radix2(b);
       t[i] = System.nanoTime() - startTime;
-    }
-    if (debug) {
-      for (int i = 0; i < 10; i++)
-        pln("[" + i + "]: " + n[i]);
-      for (int i = n.length - 1; i >= n.length - 10; i--)
-        pln("[" + i + "]: " + n[i]);
     }
     Arrays.sort(t);
     return t[testCount/2]/1000000.0;
@@ -142,16 +138,12 @@ class Oblig3 {
     //d
     long [] t = new long [testCount];
     long startTime;
+    int b [];
     for (int i = 0; i < t.length; i++) {
+      b = n.clone(); 
       startTime = System.nanoTime();
-      radix2Par(n);
+      radix2Par(b);
       t[i] = System.nanoTime() - startTime;
-    }
-    if (debug) {
-      for (int i = 0; i < 10; i++)
-        pln("[" + i + "]: " + n[i]);
-      for (int i = n.length - 1; i >= n.length - 10; i--)
-        pln("[" + i + "]: " + n[i]);
     }
     Arrays.sort(t);
     return t[testCount/2]/1000000.0;
