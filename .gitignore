@@ -1,1 +1,3 @@
+*.class
+.tags
 .DS_*
