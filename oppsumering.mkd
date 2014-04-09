@@ -1,0 +1,11 @@
+# Regler som gjør programmet riktig!
+(se foil 8 og 9 uke 3).
+- 8 relger på foil for uke3 (side 8og9) (Se på disse!!).
+- Regler for lesing og skriving av felles data (foil 10) (Se på disse!!).
+
+## Tråder uten egne klasser:
+new Thread(new Runnable() {
+    public void run() { alf.hils(gjert); }}).start();
+## synchronzied
+Flere synchronized i et objekt låser alle synchronized felter, ikke bare det
+ene (f.eks. 2 synch metoder: bare en kan bli kjørt omgangen, begge blir låst!)
