@@ -1,0 +1,3 @@
+Oppgavene i uke 3 skal løses med regler fra forelesning:
+8 regler for at parallellprogramering skal gå bra
+(f.eks. en tråd gjør seg ferdig med eventuelt siste slik at alt er ferdig når trådene har kjørt)

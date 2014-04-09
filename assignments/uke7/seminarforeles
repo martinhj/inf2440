@@ -1,0 +1,8 @@
+med alle primtall opp til __N__ kan vi faktorisere alle tall opp til __M__ < NxN
+r1xr2.... < sqrt(M)
+
+# Parallellisering av faktorisering og primtallsgenkjenning.
+- Hvilke data er lokale i hver tråd?
+- Hvordan finne lokale data?
+- Hva er felles data?
+- Hvordan skrive resultat/synkroniseringer? (minst mulige synkroniseringer)
