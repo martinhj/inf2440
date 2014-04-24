@@ -129,8 +129,6 @@ class Oblig3 {
       b = n.clone();
       startTime = System.nanoTime();
       radix2(b);
-      for (int j = 0; j < b.length; j++)
-        pln("" + b[j]);
       t[i] = System.nanoTime() - startTime;
     }
     Arrays.sort(t);
