@@ -129,6 +129,8 @@ class Oblig3 {
       b = n.clone();
       startTime = System.nanoTime();
       radix2(b);
+      for (int j = 0; j < b.length; j++)
+        pln("" + b[j]);
       t[i] = System.nanoTime() - startTime;
     }
     Arrays.sort(t);
@@ -358,8 +360,6 @@ class Oblig3 {
     int[] b = new int [a.length];
     radixSort(a, b, bit1, 0); // første siffer fra a[] til b[]
     radixSort(b, a, bit2, bit1);// andre siffer, tilbake fra b[] til a[]
-    for (int i = 0; i < a.length; i++)
-      pln("" + a[i] + " - " + b[i]);
 
   } // end radix2
 
