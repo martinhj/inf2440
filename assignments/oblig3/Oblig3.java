@@ -273,6 +273,8 @@ class Oblig3 {
 
     // end find maxValue.
 
+		while (max >= (1<<numBit)) numBit++; // antall siffer i max
+
 
     // b, count values
 
@@ -352,6 +354,13 @@ class Oblig3 {
 
     if (debug) stoptime = System.nanoTime();
     if (debug) p("a1: " + ((stoptime - starttime)/1000000.0)+ "ms\n");
+
+		
+		pln(">> " + numBit);
+
+		while (max >= (1<<numBit)) numBit++; // antall siffer i max
+
+		pln(">> " + numBit);
 
 
     // bestem antall bit i siffer1 og siffer2 
