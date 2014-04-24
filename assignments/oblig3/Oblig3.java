@@ -1,3 +1,10 @@
+// Kunne ha gjort:
+// Effektivisert ved å bruke opp igjen trådene. Men hadde resultert i mer
+// rotete kode.  Ved å sette to trådklasser for å løse oppgaven får vi også
+// målt forskjellen mellom a og b,c og d hver for seg selv om vi er klar over
+// at det er et større forbedringspotensiale.
+
+
 /*
  * Oblig3 i INF2440 Universitet i Oslo
  *
@@ -17,7 +24,7 @@
  *
  * Parallellisere.
  * a) findMax
- * b)
+ * b) count values.
  * c)
  * d)
  */
@@ -43,8 +50,10 @@ class Oblig3 {
    * Global variables.
    */
   boolean debug = false;
-  final static int MAX_VALUE = 100000000;
+  private final int MAX_VALUE;
 	final static int q = Runtime.getRuntime().availableProcessors();
+  int numBits = 10;
+  int numSif;
   static int testCount = 1;
   static int numberCount = 500;
   Random randomg = new Random();
@@ -66,6 +75,8 @@ class Oblig3 {
    */
   Oblig3() {
      maxValues = new int [q];
+     numSif = (int) Math.pow(2.0, (double) numBits);
+     MAX_VALUE = numSif;
   } // end constructor
 
 
@@ -155,7 +166,7 @@ class Oblig3 {
   /**
    * Print to screen and/or file.
    */
-  static void pln(String s) {
+  synchronized static void pln(String s) {
     p(s + "\n");
   }
 
@@ -165,7 +176,7 @@ class Oblig3 {
   /**
    * Print to screen and/or file.
    */
-  static void pln() {
+  synchronized static void pln() {
     p("\n");
   }
 
@@ -175,7 +186,7 @@ class Oblig3 {
   /**
    * Print to screen and/or file.
    */
-  static void p(String s) {
+  synchronized static void p(String s) {
     System.out.print(s);
     //if (filewrite) file.
   }
@@ -221,33 +232,54 @@ class Oblig3 {
    */
   void radix2Par(int [] a) {
     int l;
+    int [][] allCount = new int[q][];
+    int [] sumCount = new int[numberCount];
     bwait = new CyclicBarrier(q + 1);
     bfinish = new CyclicBarrier(q + 1);
-    RadixRunner [] t = new RadixRunner [q];
+    MaxValueRunner [] t = new MaxValueRunner [q];
     l = a.length;
-    // initiere trådene
     long starttime = System.nanoTime();
-    //sets maxValues[0] as max
     for (int i = 0; i < q; i++) {
+      int startpoint = l/q*i;
+      int endpoint;
       if (i != q - 1 )
-        new Thread(t[i] = new RadixRunner(i, a, l/q*i, l/q*(i+1)-1)).start();
+        endpoint = l/q*(i+1)-1;
       else
-        new Thread(t[i] = new RadixRunner(i, a, l/q*i, l-1)).start();
+        endpoint = l-1;
+      t[i] = new MaxValueRunner(i, a, startpoint, endpoint);
+      new Thread(t[i]).start();
     }
-    // a, kjøre findmax
+    
     try {
       bwait.await();
     } catch (Exception e) {return;}
     try {
-      bfinish.await();
+      bwait.await();
     } catch (Exception e) {return;}
+
     pln("a1 (para findmax): " + (System.nanoTime() - starttime)/1000000.0);
+    //sets maxValues[0] as max
+    //int bit1 = numBit/2,
+    //    bit2 = numBit-bit1;
+
+    //new Thread(t[i] = new MaxValueRunner(i, a, startpoint, endpoint, bit2, bit1)).start();
+    // a, kjøre findmax
+
+    // b, telle sifferverdier.
+
+
     System.out.println("par max: " + maxValues[0]);
-
-
-
   }
 
+  /**
+   * Count the frequency of each digit.
+   */
+  void frequencyCount(int startpoint, int endpoint, int [] array,
+                      int [] localCount, int maskLen, int shift) {
+    int mask = (1 << maskLen) - 1;
+    for (int i = startpoint; i < endpoint; i++) {
+      localCount[(array[i]>> shift) & mask]++; }
+  }
 
 
 
@@ -270,12 +302,12 @@ class Oblig3 {
     if (debug) stoptime = System.nanoTime();
     if (debug) p("a1: " + ((stoptime - starttime)/1000000.0)+ "ms\n");
 
-    if (debug) starttime = System.nanoTime();
-    if (debug) System.out.println("nb: " + numBit);
-    while (max >= (1<<numBit)) numBit++; // antall siffer i max
-    if (debug) System.out.println("nb: " + numBit);
-    if (debug) stoptime = System.nanoTime();
-    if (debug) p("a2: " + ((stoptime - starttime)/1000000.0)+ "ms\n");
+    /* if (debug) starttime = System.nanoTime(); */
+    /* if (debug) System.out.println("nb: " + numBit); */
+    /* while (max >= (1<<numBit)) numBit++; // antall siffer i max */
+    /* if (debug) System.out.println("nb: " + numBit); */
+    /* if (debug) stoptime = System.nanoTime(); */
+    /* if (debug) p("a2: " + ((stoptime - starttime)/1000000.0)+ "ms\n"); */
 
     // bestem antall bit i siffer1 og siffer2 
     int bit1 = numBit/2,
@@ -329,10 +361,6 @@ class Oblig3 {
 
 
 
-
-
-
-
   /**
    * This class is a help class to start code in the different threads.
    * It will reuse the threads for each step in the process.
@@ -341,10 +369,10 @@ class Oblig3 {
    * @param startpoint    First value which the thread got responsibility for.
    * @param endpoint      Last value which the thread got responsibility for.
    */
-  class RadixRunner implements Runnable {
-    int index, startpoint, endpoint;
-    int [] a;
-    RadixRunner(int index, int [] a, int startpoint, int endpoint) {
+  class MaxValueRunner implements Runnable {
+    final int index, startpoint, endpoint;
+    final int [] a;
+    MaxValueRunner(int index, int [] a, int startpoint, int endpoint) {
       this.index = index;
       this.startpoint = startpoint;
       this.endpoint = endpoint;
@@ -356,22 +384,48 @@ class Oblig3 {
         bwait.await();
       } catch (Exception e) {return;}
       // sets the maxValues[0] as max.
-      if (index == 0) {
-        for (int i = 1; i < maxValues.length; i++)
-         if (maxValues[i] > maxValues[0]) maxValues[0] = maxValues[i];
-      }
+      if (index == 0)
+        mergeMaxValues();
       try {
-        bfinish.await();
+        bwait.await();
       } catch (Exception e) {return;}
     }
     /* a */
     void pfindMax() {
       maxValues[index] = findMax(a, startpoint, endpoint);
     }
+    
+    
+    void mergeMaxValues() {
+      for (int i = 1; i < maxValues.length; i++)
+        if (maxValues[i] > maxValues[0]) maxValues[0] = maxValues[i];
+    }
     /*b*/
     /*c*/
     /*d*/
-  } // End Class RadixRunner
+  } // End Class MaxValueRunner
+
+  class RadixRunner implements Runnable {
+    int index, startpoint, endpoint, maskLen, shift;
+    int a[], b[];
+    int count[];
+    RadixRunner(int index, int [] a, int [] count, int startpoint, int endpoint,
+                int maskLen, int shift) {
+      this.index = index;
+      this.startpoint = startpoint;
+      this.endpoint = endpoint;
+      this.maskLen = maskLen;
+      this.shift = shift;
+      this.a = a;
+      this.count = count;
+
+    }
+
+
+
+
+    public void run() {}
+  }
 
 
 
