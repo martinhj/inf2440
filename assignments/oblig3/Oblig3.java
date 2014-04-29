@@ -275,6 +275,7 @@ class Oblig3 {
 
 
 
+		// Gjøres i en av trådene..
 		while (max >= (1<<numBit)) numBit++; // antall siffer i max
 
 		
@@ -342,15 +343,105 @@ class Oblig3 {
 
   /**
    * Count the frequency of each digit.
+	 * Skritt B
    */
   int [] frequencyCount(int startpoint, int endpoint, int [] array,
-                      int [] _localCount, int maskLen, int shift) {
+                      int [] _localCount, int mask, int shift) {
 		int [] localCount = new int [_localCount.length];
-    int mask = (1 << maskLen) - 1;
     for (int i = startpoint; i <= endpoint; i++) {
       localCount[(array[i]>> shift) & mask]++; }
 		return localCount;
   }
+
+
+
+	/**
+	 * Sum up frequency count of the different threads.
+	 * Eventuelt i skritt B.
+	 * Trengs denne?
+	 */
+	void sumFrequencyCount(int [][] allCount) {
+		// eller jobbe mot en globalcount?
+		//int [] count = new int [/* ??? */];
+		// sette sammen hvor mange 
+		// return count;
+	}
+
+
+
+	/**
+	 * Accumulate sums of the frequency count.
+	 * Skritt C.
+	 */
+	// eller skal endpoint byttes ut med length?
+	void accumulateFreqCount(int [][] allCount) {
+		// Men hvordan skal den klare å akkumulere i tråder, når vi er avhengige 
+		// av all data til venstre i denne prosessen.
+		//
+		// => Sekvensielt gå gjennom i = fra 0 til count.length
+		// (allCount[0].length) og legge sammen allCount[q-1][i] og
+		// allAccumCount[q-1][i]. 
+		//
+		// Legger sammen akkumlerte fra siste akkumulert per tråd / per verdi og
+		// siste verdi allCount (siste tråds allCount).
+		// Kanskje parallelisere akkumuleringsdata for per tråd og så kjøre
+		// akkumuleringen sekvensielt?
+		//
+		//	for (j = fra 0 til antall tråder - 1)
+		//		count[i] = 
+		//
+		}
+
+
+
+
+	/**
+	 * Accumulate per value.
+	 * Del av skritt C.
+	 */
+	void accumulatePerValueFreqCount(int startpoint, int endpoint, int [][] allCount, int [][] allAcumCount) {
+		// int acumVal, n;
+		// for (i = start til end)
+		//   acumVal = 0;
+		//	 for (j = 0 til q-1) {
+		//	   n = allAcumCount[j][i];
+		//	   allAcumVal[j][i] = acumVal;
+		//	   acumVal += n;
+		//	 }
+		//	 sumCount[q-1] = acumVal;
+
+	}
+
+
+
+
+	/**
+	 * Gjennomføre D.
+	 */
+	void moveNumbers(int index, int startpoint, int endpoint, int [] fromArray, int []
+			toArray, int [] count, int shift, int mask) {
+		// Hvilke shift og mask skal jeg bruke? (hvorfra?) - satt opp som argumenter
+		// nå.
+
+
+		int number, offset; // regner med at offset fjernes av jit og derfor ikke 
+		// utfordrer ytelsen i antall kjøringer som er aktuelt her (husk flest først,
+		// færrest til sist (milliarder og millioner før tusner - jit).
+		for (int i = startpoint; i <= endpoint; i++) {
+			number = (fromArray[i]>>shift) & mask;
+			offset = allAcumCount[index][number];
+			toArray[(count[number]++)+offset] = fromArray[i];
+			//			^								^  trengs disse parantesene?
+
+			// count[(fromArray[i]>>shift) & mask]++ <= Denne (++) oppdaterer pointer
+			// på hvor neste tall skal legges inn.
+			// Her må også allAcumCount (offsett) tas med. allAcumCount[index] for å
+			// hente ut for riktig tråd.
+			// Og allAcumCount[][(fromArray[i]>>shift) & mask] for å få ut offsett
+			// for riktig tall.
+			// toArray[count[(fromArray[i]>>shift) & mask]++] = fromArray[i];
+		}
+	}
 
 
 
@@ -519,8 +610,14 @@ class Oblig3 {
     /*d*/
   } // End Class MaxValueRunner
 
+
+
+
+	/**
+	 * Help class to start radix sort in parallel.
+	 */
   class RadixRunner implements Runnable {
-    int index, startpoint, endpoint, maskLen, shift;
+    int index, startpoint, endpoint, maskLen, shift, mask;
     int a[], b[];
     int count[];
     RadixRunner(int index, int [] a, int [] b, int [] count, 
@@ -533,30 +630,43 @@ class Oblig3 {
       this.a = a;
       this.b = b;
       this.count = count;
+			this.mask = (1 << maskLen) - 1;
     }
-
-
-
 
 
     public void run() {
       // telle antall verdier i hvert sitt område.
-      count = frequencyCount(startpoint, endpoint, a, count, maskLen, shift);
-			if (debug) pln(Thread.currentThread().getName() + " running");
+			// legge inn en wait som gjør at alle er ferdige med oppstarten før
+			// tidtakning.
+			count = frequencyCount(startpoint, endpoint, a, count, mask, shift);
 			try {
-				if (debug) pln(Thread.currentThread().getName() + " waiting");
 				bwait.await();
-				if (debug) pln(Thread.currentThread().getName() + " running");
+				// summere opp counts fra parallel opptelling her.
+				// sumParallelCounts(allCount);
 			} catch (Exception e) {return;}
-      // index == 0 setter sammen disse.
-			//if (index == 0)
 				
+			// Telle opp hvor mange de tidligere trådene trenger av plass for en 
+			// konkret verdi, så d (i samme operasjon).
+
+
+			// D
+			// Hvordan skal  moveNumbers() kalles? Her trengs en fraArray og en
+			// tilArray. maskLen og shift er tilgjenglig. 
+			// index, a fraArray, b tilArray, mask, shift
+			// samme start og endpoint?
+			// hvilken count-variabel?
+			// trenger også acumAll-eller hva det var for noe.
+			//moveNumbers(index, sp, ep, a, b, count, shift, mask);
+
+
+
+
+
 			/* try { */
 			/* 	if (debug) pln(Thread.currentThread().getName() + " waiting again"); */
 			/* 	bfinish.await(); */
 			/* 	if (debug) pln(Thread.currentThread().getName() + " waiting finished"); */
 			/* } catch (Exception e) {return;} */
-
 
     }
   }
