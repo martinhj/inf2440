@@ -339,7 +339,7 @@ class Oblig3 {
       //radixSort(b, a, bit2, bit1);// andre siffer, tilbake fra b[] til a[]
       allCount[i] = new int [mask+1];
 			allAcumCount[i] = new int [mask + 1];
-      t[i] = new RadixRunner2(i, a, b, allCount, allAcumCount, startpoint, endpoint, bit1, 0);
+      t[i] = new RadixRunner2(i, a, b, allCount, allAcumCount, startpoint, endpoint, bit1, 0, bit2);
       new Thread(t[i]).start();
     }
 		try {
@@ -352,9 +352,26 @@ class Oblig3 {
 			bwait.await();
 			bwait.await();
 			bwait.await();
-			/* for (int j = 0; j < b.length; j++) { */
-			/* 	pln(j + ": " + b[j] + " - " + Integer.toBinaryString(b[j])); */
-			/* } */
+
+
+
+
+			bwait.await();
+			starttime = System.nanoTime(); // starter å telle her for å se hvor lang tid det tar uten
+			// oppstart av trådene osv. for å se sammenligning av algoritme.
+			if (debug) pln(Thread.currentThread().getName() + " waiting");
+			bwait.await();
+			pln("b (para count values): " + (System.nanoTime() - starttime)/1000000.0 + "ms.");
+			bwait.await();
+			bwait.await();
+			bwait.await();
+			
+
+
+
+			for (int j = 0; j < b.length; j++) {
+				pln(j + ": " + b[j] + " - " + Integer.toBinaryString(b[j]));
+			}
 			if (debug) pln(Thread.currentThread().getName() + " running");
 		} catch (Exception e) {return;}
 
@@ -680,15 +697,15 @@ class Oblig3 {
 	 * Help class to start radix sort in parallel.
 	 */
   class RadixRunner2 implements Runnable {
-    int index, startpoint, endpoint, maskLen, shift, mask;
+    int index, startpoint, endpoint, maskLen, shift, mask, bit2;
     int a[], b[], count[], allCount[][], allAcumCount[][];
 		// ta inn bit1 og bit2 her, slik at vi kan kjøre gjennom begge turene uten
 		// å måtte starte opp igjen ny tråder.
 		// Bytte ut maskLen med bit1 og shift med bit2 så bruke disse som maskLen
 		// og shift den ene og andre veien.
 		RadixRunner2(int index, int [] a, int [] b, int [][] allCount, 
-				int [][] allAcumCount, int startpoint, int endpoint, int maskLen,
-				int shift) {
+				int [][] allAcumCount, int startpoint, int endpoint, 
+				int maskLen, int shift, int bit2) {
       this.index = index;
       this.startpoint = startpoint;
       this.endpoint = endpoint;
@@ -700,6 +717,7 @@ class Oblig3 {
 			this.allAcumCount = allAcumCount;
       this.count = allCount[index];
 			this.mask = (1 << maskLen) - 1;
+			this.bit2 = bit2;
     }
 
 
@@ -735,6 +753,96 @@ class Oblig3 {
 			//
 			int startpointacu = allCount[0].length/q*index;
 			int endpointacu;
+			if (index != q-1) 
+				endpointacu = (allCount[0].length/q)*(index+1) - 1;
+			else
+				endpointacu = allCount[0].length - 1;
+			// sørge for at allAcumCount er initiert her før metoden kjøres.
+			/* for (int i = 0; i < allCount.length; i++) { */
+			/* 	p("count " + i + ": "); */
+			/* 	for (int j = 0; j < allCount[i].length; j++) */
+			/* 		p("" + allCount[i][j] + "; "); */
+			/* 	pln(); */
+			/* } */
+			acumulatePerValueFreqCount(startpointacu, endpointacu, allCount, allAcumCount);
+			/* if (index == 0) for (int j = 0; j < allAcumCount[0].length; j++) { */
+			/* 	p("acum " + j + ": "); */
+			/* 	for (int i = 0; i < allAcumCount.length; i++) { */
+			/* 		p("" + allAcumCount[i][j] + "; "); */
+			/* 	} */
+			/* 	pln(); */
+			/* } */
+
+			//vente på at alle trådene er ferdig.
+ 			try {
+				bwait.await();
+			} catch (Exception e) {return;} 
+			// if (index == 0) printArray(allAcumCount, index);
+
+			// C hoveddel, bruker tall fra 
+			// if (index == 0) sekvensielt akumulere (eller la alle trådene legge
+			// sammen, sparer en barrier før skritt D.
+			if (index == 0) accumulateFreqCount(index, allCount);
+			//printArray(allCount, index);
+
+
+
+ 			try {
+				bwait.await();
+			} catch (Exception e) {return;} 
+
+
+			// D
+			// Hvordan skal  moveNumbers() kalles? Her trengs en fraArray og en
+			// tilArray. maskLen og shift er tilgjenglig. 
+			// index, a fraArray, b tilArray, mask, shift
+			// samme start og endpoint?
+			// hvilken count-variabel?
+			// trenger også acumAll-eller hva det var for noe.
+			moveNumbers(index, startpoint, endpoint, a, b, allCount[0], allAcumCount, shift, mask);
+
+
+
+
+
+
+
+			shift = maskLen;
+			mask = (1 << bit2) - 1;
+
+ 			try {
+				bwait.await();
+			} catch (Exception e) {return;} 
+			try {
+				bwait.await();
+			} catch (Exception e) {return;}
+     // telle antall verdier i hvert sitt område.
+			// legge inn en wait som gjør at alle er ferdige med oppstarten før
+			// tidtakning.
+			allCount[index] = frequencyCount(startpoint, endpoint, a, count, mask, shift);
+			try {
+				bwait.await();
+				// summere opp counts fra parallel opptelling her.
+				// sumParallelCounts(allCount);
+			} catch (Exception e) {return;}
+				
+			// Telle opp hvor mange de tidligere trådene trenger av plass for en 
+			// konkret verdi, så d (i samme operasjon).
+
+
+			// C
+			//
+			//
+			// C - finne offset for hvor hver tråd skal sette inn sine verdier.
+			// hvilket sp og ep?
+			// Trengere allAcum og allCount, nå har tråden kun sine counts.
+			// Dele opp count i like store deler:
+			// sp: allCount[0].length / q * i
+			// ep: allCount[0].length / (q*i+1) - 1
+			// og siste endpoint:
+			// allCount[0].length - 1
+			//
+			startpointacu = allCount[0].length/q*index;
 			if (index != q-1) 
 				endpointacu = (allCount[0].length/q)*(index+1) - 1;
 			else
