@@ -213,10 +213,17 @@ class Oblig3 {
   }
 
 	synchronized static void printArray(int [][] allCount, int index) {
-		p("count " + index + ": ");
-		for (int j = 0; j < allCount[index].length; j++)
-			p("" + allCount[index][j] + "; ");
-		pln();
+		if (index == 0)
+			p("count  : ");
+			for (int j = 0; j < allCount[0].length; j++)
+				p(j + "; ");
+			pln();
+			for (int i = 0; i < q; i++) {
+				p("count " + i + ": ");
+				for (int j = 0; j < allCount[index].length; j++)
+					p("" + allCount[i][j] + "; ");
+				pln();
+			}
 	}
 
 
@@ -346,7 +353,7 @@ class Oblig3 {
 			bwait.await();
 			bwait.await();
 			for (int j = 0; j < b.length; j++) {
-				pln(j + ": " + b[j]);
+				pln(j + ": " + b[j] + " - " + Integer.toBinaryString(b[j]));
 			}
 			if (debug) pln(Thread.currentThread().getName() + " running");
 		} catch (Exception e) {return;}
@@ -470,7 +477,7 @@ class Oblig3 {
 
 
 		int number, offset; // regner med at offset fjernes av jit og derfor ikke 
-		pln("Skriver ut med start: " + startpoint + " og slutt " + endpoint);
+		//pln("Skriver ut med start: " + startpoint + " og slutt " + endpoint);
 		// utfordrer ytelsen i antall kjøringer som er aktuelt her (husk flest først,
 		// færrest til sist (milliarder og millioner før tusner - jit).
 		String s;
@@ -479,7 +486,7 @@ class Oblig3 {
 			// feil i offset!!!
 			offset = allAcumCount[index][number];
 			s = Thread.currentThread().getName();
-			pln(i + " i " + s + " putter inn " + fromArray[i] + " på (" + count[number] + " + " + offset + ")" + (count[number] + offset));
+			pln(i + " i " + s + " putter inn " + fromArray[i] + " - " + Integer.toBinaryString(fromArray[i]) + " på (" + count[number] + " + " + offset + ")" + (count[number] + offset));
 			toArray[count[number]+offset] = fromArray[i];
 			count[number]++;
 			//			^								^  trengs disse parantesene?
@@ -567,6 +574,7 @@ class Oblig3 {
 
 
     for (int i = 0; i < n; i++) {
+			pln(a[i] + "(" + Integer.toBinaryString(a[i]) + ") sorteres til: " + ((a[i]>> shift) & mask));
       count[(a[i]>> shift) & mask]++; }
 
 
@@ -605,7 +613,7 @@ class Oblig3 {
       b[count[(a[i]>>shift) & mask]++] = a[i]; 
 		}
 		for (int i = 0; i < n; i++) {
-			pln(b[i]);
+			pln(b[i] + ": " + Integer.toBinaryString(b[i]));
 		}
 
 
@@ -751,6 +759,7 @@ class Oblig3 {
  			try {
 				bwait.await();
 			} catch (Exception e) {return;} 
+			if (index == 0) printArray(allAcumCount, index);
 
 			// C hoveddel, bruker tall fra 
 			// if (index == 0) sekvensielt akumulere (eller la alle trådene legge
