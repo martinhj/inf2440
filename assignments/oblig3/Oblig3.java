@@ -352,9 +352,9 @@ class Oblig3 {
 			bwait.await();
 			bwait.await();
 			bwait.await();
-			for (int j = 0; j < b.length; j++) {
-				pln(j + ": " + b[j] + " - " + Integer.toBinaryString(b[j]));
-			}
+			/* for (int j = 0; j < b.length; j++) { */
+			/* 	pln(j + ": " + b[j] + " - " + Integer.toBinaryString(b[j])); */
+			/* } */
 			if (debug) pln(Thread.currentThread().getName() + " running");
 		} catch (Exception e) {return;}
 
@@ -484,11 +484,11 @@ class Oblig3 {
 		for (int i = startpoint; i <= endpoint; i++) {
 			number = (fromArray[i]>>shift) & mask;
 			// feil i offset!!!
-			offset = allAcumCount[index][number];
+			offset = allAcumCount[index][number]++;
 			s = Thread.currentThread().getName();
-			pln(i + " i " + s + " putter inn " + fromArray[i] + " - " + Integer.toBinaryString(fromArray[i]) + " på (" + count[number] + " + " + offset + ")" + (count[number] + offset));
+			//pln(i + " i " + s + " putter inn " + fromArray[i] + " - " + Integer.toBinaryString(fromArray[i]) + " på (" + count[number] + " + " + offset + ")" + (count[number] + offset));
 			toArray[count[number]+offset] = fromArray[i];
-			count[number]++;
+			//count[number]++;
 			//			^								^  trengs disse parantesene?
 
 			// count[(fromArray[i]>>shift) & mask]++ <= Denne (++) oppdaterer pointer
@@ -574,7 +574,7 @@ class Oblig3 {
 
 
     for (int i = 0; i < n; i++) {
-			pln(a[i] + "(" + Integer.toBinaryString(a[i]) + ") sorteres til: " + ((a[i]>> shift) & mask));
+			//pln(a[i] + "(" + Integer.toBinaryString(a[i]) + ") sorteres til: " + ((a[i]>> shift) & mask));
       count[(a[i]>> shift) & mask]++; }
 
 
@@ -612,9 +612,9 @@ class Oblig3 {
     for (int i = 0; i < n; i++) {
       b[count[(a[i]>>shift) & mask]++] = a[i]; 
 		}
-		for (int i = 0; i < n; i++) {
-			pln(b[i] + ": " + Integer.toBinaryString(b[i]));
-		}
+		/* for (int i = 0; i < n; i++) { */
+		/* 	pln(b[i] + ": " + Integer.toBinaryString(b[i])); */
+		/* } */
 
 
     if (debug) stoptime = System.nanoTime();
@@ -759,7 +759,7 @@ class Oblig3 {
  			try {
 				bwait.await();
 			} catch (Exception e) {return;} 
-			if (index == 0) printArray(allAcumCount, index);
+			// if (index == 0) printArray(allAcumCount, index);
 
 			// C hoveddel, bruker tall fra 
 			// if (index == 0) sekvensielt akumulere (eller la alle trådene legge
