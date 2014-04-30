@@ -16,21 +16,6 @@
 
 
 
-/* ************************************
- * TODO:
- *
- * Trengs det noe utskrift?
- * Ta tiden på de forskjellige punktene i radixsort?
- *
- * Parallellisere.
- * a) findMax
- * b) count values.
- * c)
- * d)
- */
-
-
-
 
 /*
  * import java.util.FileWriter
@@ -262,143 +247,6 @@ class Oblig3 {
 
 
 
-  /** 
-   * Parallel version of radix sort with two digits.
-   */
-  void radix2Par(int [] a) {
-    int l;
-    int [][] allCount = new int[q][];
-		int [][] allAcumCount = new int[q][];
-    int [] sumCount;
-    int [] b = new int [a.length];
-    long starttime = System.nanoTime();
-    bwait = new CyclicBarrier(q + 1);
-    bfinish = new CyclicBarrier(q + 1);
-    Runnable [] t = new Runnable [q];
-    l = a.length;
-    int max;
-    int numBit = 2;
-
-
-
-    // a, find maxValue.
-    for (int i = 0; i < q; i++) {
-      int startpoint = l/q*i;
-      int endpoint;
-      if (i != q - 1 )
-        endpoint = l/q*(i+1)-1;
-      else
-        endpoint = l-1;
-      t[i] = new MaxValueRunner(i, a, startpoint, endpoint);
-      new Thread(t[i]).start();
-    }
-    
-    try {
-      bwait.await();
-    } catch (Exception e) {return;}
-    try {
-      bwait.await();
-      //sets maxValues[0] as max
-      max = maxValues[0];
-    } catch (Exception e) {return;}
-
-    pln("a1 (para findmax): " + (System.nanoTime() - starttime)/1000000.0);
-    System.out.println("par max: " + maxValues[0]);
-
-
-    // end find maxValue.
-
-
-
-
-		// Gjøres i en av trådene..
-		while (max >= (1<<numBit)) numBit++; // antall siffer i max
-
-		
-		
-
-    // b, count values
-    bwait = new CyclicBarrier(q + 1);
-    bfinish = new CyclicBarrier(q + 1);
-
-    int bit1 = numBit/2,
-        bit2 = numBit-bit1;
-
-    int mask = (1<<bit1) -1;
-
-		sumCount = new int[mask + 1];
-
-    for (int i = 0; i < q; i++) {
-      int startpoint = l/q*i;
-      int endpoint;
-      if (i != q - 1 )
-        endpoint = l/q*(i+1)-1;
-      else
-        endpoint = l-1;
-      //radixSort(a, b, bit1, 0); // første siffer fra a[] til b[]
-      //radixSort(b, a, bit2, bit1);// andre siffer, tilbake fra b[] til a[]
-      allCount[i] = new int [mask+1];
-			allAcumCount[i] = new int [mask + 1];
-      t[i] = new RadixRunner2(i, a, b, allCount, allAcumCount, startpoint, endpoint, bit1, 0, bit2);
-      new Thread(t[i]).start();
-    }
-		try {
-			bwait.await();
-			starttime = System.nanoTime(); // starter å telle her for å se hvor lang tid det tar uten
-			// oppstart av trådene osv. for å se sammenligning av algoritme.
-			if (debug) pln(Thread.currentThread().getName() + " waiting");
-			bwait.await();
-			pln("b (para count values): " + (System.nanoTime() - starttime)/1000000.0 + "ms.");
-			bwait.await();
-			bwait.await();
-			bwait.await();
-
-
-
-
-			bwait.await();
-			starttime = System.nanoTime(); // starter å telle her for å se hvor lang tid det tar uten
-			// oppstart av trådene osv. for å se sammenligning av algoritme.
-			if (debug) pln(Thread.currentThread().getName() + " waiting");
-			bwait.await();
-			pln("b (para count values): " + (System.nanoTime() - starttime)/1000000.0 + "ms.");
-			bwait.await();
-			bwait.await();
-			bwait.await();
-			
-
-
-
-			for (int j = 0; j < b.length; j++) {
-				pln(j + ": " + b[j] + " - " + Integer.toBinaryString(b[j]));
-			}
-			if (debug) pln(Thread.currentThread().getName() + " running");
-		} catch (Exception e) {return;}
-
-		/* try { */
-		/* 	if (debug) pln(Thread.currentThread().getName() + " waiting again"); */
-		/* 	bfinish.await(); */
-		/* 	if (debug) pln(Thread.currentThread().getName() + " finished"); */
-		/* } catch (Exception e) {return;} */
-
-		// summerer opp count.
-			/* for (int i = 0; i < allCount.length; i++) { */
-			/* 	for (int j = 0; j < sumCount.length; j++) { */
-			/* 		sumCount[j] += allCount[i][j]; */
-			/* 	} */
-			/* } */
-		//new Thread(t[i] = new MaxValueRunner(i, a, startpoint, endpoint, bit2, bit1)).start();
-		//t[i] = new RadixRunner(i, a, allCount[i], startpoint, endpoint, bit1, 0);
-		//new Thread(t[i]).start();
-
-
-
-
-
-    // c
-    // d
-
-  }
 
 
 
@@ -689,6 +537,147 @@ class Oblig3 {
     /*c*/
     /*d*/
   } // End Class MaxValueRunner
+
+
+
+
+  /** 
+   * Parallel version of radix sort with two digits.
+   */
+  void radix2Par(int [] a) {
+    int l;
+    int [][] allCount = new int[q][];
+		int [][] allAcumCount = new int[q][];
+    int [] sumCount;
+    int [] b = new int [a.length];
+    long starttime = System.nanoTime();
+    bwait = new CyclicBarrier(q + 1);
+    bfinish = new CyclicBarrier(q + 1);
+    Runnable [] t = new Runnable [q];
+    l = a.length;
+    int max;
+    int numBit = 2;
+
+
+
+    // a, find maxValue.
+    for (int i = 0; i < q; i++) {
+      int startpoint = l/q*i;
+      int endpoint;
+      if (i != q - 1 )
+        endpoint = l/q*(i+1)-1;
+      else
+        endpoint = l-1;
+      t[i] = new MaxValueRunner(i, a, startpoint, endpoint);
+      new Thread(t[i]).start();
+    }
+    
+    try {
+      bwait.await();
+    } catch (Exception e) {return;}
+    try {
+      bwait.await();
+      //sets maxValues[0] as max
+      max = maxValues[0];
+    } catch (Exception e) {return;}
+
+    pln("a1 (para findmax): " + (System.nanoTime() - starttime)/1000000.0);
+    System.out.println("par max: " + maxValues[0]);
+
+
+    // end find maxValue.
+
+
+
+
+		// Gjøres i en av trådene..
+		while (max >= (1<<numBit)) numBit++; // antall siffer i max
+
+		
+		
+
+    // b, count values
+    bwait = new CyclicBarrier(q + 1);
+    bfinish = new CyclicBarrier(q + 1);
+
+    int bit1 = numBit/2,
+        bit2 = numBit-bit1;
+
+    int mask = (1<<bit1) -1;
+
+		sumCount = new int[mask + 1];
+
+    for (int i = 0; i < q; i++) {
+      int startpoint = l/q*i;
+      int endpoint;
+      if (i != q - 1 )
+        endpoint = l/q*(i+1)-1;
+      else
+        endpoint = l-1;
+      //radixSort(a, b, bit1, 0); // første siffer fra a[] til b[]
+      //radixSort(b, a, bit2, bit1);// andre siffer, tilbake fra b[] til a[]
+      allCount[i] = new int [mask+1];
+			allAcumCount[i] = new int [mask + 1];
+      t[i] = new RadixRunner2(i, a, b, allCount, allAcumCount, startpoint, endpoint, bit1, 0, bit2);
+      new Thread(t[i]).start();
+    }
+		try {
+			bwait.await();
+			starttime = System.nanoTime(); // starter å telle her for å se hvor lang tid det tar uten
+			// oppstart av trådene osv. for å se sammenligning av algoritme.
+			if (debug) pln(Thread.currentThread().getName() + " waiting");
+			bwait.await();
+			pln("b (para count values): " + (System.nanoTime() - starttime)/1000000.0 + "ms.");
+			bwait.await();
+			bwait.await();
+			bwait.await();
+
+
+
+
+			bwait.await();
+			starttime = System.nanoTime(); // starter å telle her for å se hvor lang tid det tar uten
+			// oppstart av trådene osv. for å se sammenligning av algoritme.
+			if (debug) pln(Thread.currentThread().getName() + " waiting");
+			bwait.await();
+			pln("b (para count values): " + (System.nanoTime() - starttime)/1000000.0 + "ms.");
+			bwait.await();
+			bwait.await();
+			bwait.await();
+			
+
+
+
+			for (int j = 0; j < b.length; j++) {
+				pln(j + ": " + b[j] + " - " + Integer.toBinaryString(b[j]));
+			}
+			if (debug) pln(Thread.currentThread().getName() + " running");
+		} catch (Exception e) {return;}
+
+		/* try { */
+		/* 	if (debug) pln(Thread.currentThread().getName() + " waiting again"); */
+		/* 	bfinish.await(); */
+		/* 	if (debug) pln(Thread.currentThread().getName() + " finished"); */
+		/* } catch (Exception e) {return;} */
+
+		// summerer opp count.
+			/* for (int i = 0; i < allCount.length; i++) { */
+			/* 	for (int j = 0; j < sumCount.length; j++) { */
+			/* 		sumCount[j] += allCount[i][j]; */
+			/* 	} */
+			/* } */
+		//new Thread(t[i] = new MaxValueRunner(i, a, startpoint, endpoint, bit2, bit1)).start();
+		//t[i] = new RadixRunner(i, a, allCount[i], startpoint, endpoint, bit1, 0);
+		//new Thread(t[i]).start();
+
+
+
+
+
+    // c
+    // d
+
+  }
 
 
 
