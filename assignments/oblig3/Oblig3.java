@@ -85,18 +85,22 @@ class Oblig3 {
    */
   void runTest(int testCount, int numberCount) {
     double seq, par;
-    int m [] = populate(numberCount);
+    int m [] = new int [numberCount];
     String s, nl = "\n";
-    s = "***Test***" + nl;
-    s += "Testing with an array with _" + numberCount + "_ random numbers ";
-    s += "and doing it _" + testCount + "_ times " + nl;
-    pln(s);
-    seq = runSeqTest(m, testCount);
-    s = "Seq: " + seq;
-    pln(s);
-    par = runParTest(m, testCount);
-    s = "Par: " + par;
-    pln(s);
+		for (int i = numberCount; i >= 1000; i /= 10) {
+			m = new int [i];
+			s = "***Test***" + nl;
+			s += "Testing with an array with _" + i + "_ random numbers ";
+			s += "and doing it _" + testCount + "_ times " + nl;
+			pln(s);
+			seq = runSeqTest(m, testCount);
+			s = "Seq: " + seq;
+			pln(s);
+			par = runParTest(m, testCount);
+			s = "Par: " + par + nl;
+			s += "speedup: " + (seq / par) + nl;
+			pln(s);
+		}
   }
 
 
@@ -109,7 +113,7 @@ class Oblig3 {
     long [] t = new long [testCount];
     long startTime;
     for (int i = 0; i < t.length; i++) {
-			n = populate(numberCount);
+			n = populate(n.length);
       startTime = System.nanoTime();
       radix2(n);
       t[i] = System.nanoTime() - startTime;
@@ -125,15 +129,10 @@ class Oblig3 {
    * Run radix sort in parallel.
    */
   double runParTest(int [] n, int testCount) {
-    //a
-    /* FindMax */
-    //b
-    //c
-    //d
     long [] t = new long [testCount];
     long startTime;
     for (int i = 0; i < t.length; i++) {
-			n = populate(numberCount);
+			n = populate(n.length);
       startTime = System.nanoTime();
       radix2Par(n);
       t[i] = System.nanoTime() - startTime;
@@ -307,10 +306,6 @@ class Oblig3 {
    * Radix sort with two digits.
    */
   static void radix2(int [] a) {
-    // debug
-    long starttime = 0,
-         stoptime = 0;
-    boolean debug = true;
 
 
 
@@ -318,21 +313,14 @@ class Oblig3 {
     int max = a[0], numBit = 2;
 
     // a) finn max verdi i a[]
-    if (debug) starttime = System.nanoTime();
     for (int i = 1 ; i < a.length ; i++)
       if (a[i] > max) max = a[i];
-    pln("seq max: " + max);
+    //pln("seq max: " + max);
 
 
-    if (debug) stoptime = System.nanoTime();
-    if (debug) p("a1: " + ((stoptime - starttime)/1000000.0)+ "ms\n");
-
-		
-		//pln(">> " + numBit);
 
 		while (max >= (1<<numBit)) numBit++; // antall siffer i max
 
-		//pln(">> " + numBit);
 
 
     // bestem antall bit i siffer1 og siffer2 
@@ -354,40 +342,18 @@ class Oblig3 {
    * Sort a[] on one digit ; number of bits = maskLen, shiftet up ‘shift’ bits.
    */ 
   static void radixSort ( int [] a, int [] b, int maskLen, int shift){
-    boolean debug = true;
+    boolean debug = false;
     int acumVal = 0, j, n = a.length;
     int mask = (1<<maskLen) -1;
 
-
-
     int [] count = new int [mask+1];
-    // debug
-    long starttime = 0,
-         stoptime = 0;
+
 
 		
-		
-
-    // b) count=the frequency of each radix value in a 
-    if (debug) starttime = System.nanoTime();
-
-
     for (int i = 0; i < n; i++) {
-			//pln(a[i] + "(" + Integer.toBinaryString(a[i]) + ") sorteres til: " + ((a[i]>> shift) & mask));
       count[(a[i]>> shift) & mask]++; }
-
-
-    if (debug) stoptime = System.nanoTime();
-    if (debug) p("b: " + ((stoptime - starttime)/1000000.0)+ "ms\n");
 		
 		
-	
-
-    // c) Add up in 'count' - accumulated values 
-		// for at tallene skal bli plassert riktig sted i punkt d.
-		//if (debug) pln("mask: " + mask);
-    if (debug) starttime = System.nanoTime();
-
 
     for (int i = 0; i <= mask; i++) {
       j = count[i];
@@ -395,23 +361,11 @@ class Oblig3 {
     }
 
 
-    if (debug) stoptime = System.nanoTime();
-    if (debug) p("c: " + ((stoptime - starttime)) + "ns\n");
-    if (debug) pln("sjekk hvorfor 0.0!"); // fjern / 1000000.0
-
-
-
-
-    // d) move numbers in sorted order a to b 
-    if (debug) starttime = System.nanoTime();
-
 
     for (int i = 0; i < n; i++) {
       b[count[(a[i]>>shift) & mask]++] = a[i]; 
 		}
 
-    if (debug) stoptime = System.nanoTime();
-    if (debug) p("d: " + ((stoptime - starttime)/1000000.0) + "ms\n");
   }// end radixSort
 
 
@@ -444,13 +398,12 @@ class Oblig3 {
       if (index == 0)
         mergeMaxValues();
       try {
-        bwait.await();
+        bfinish.await();
       } catch (Exception e) {return;}
     }
 
 
 
-    /* a */
     void pfindMax() {
       maxValues[index] = findMax(a, startpoint, endpoint);
     }
@@ -461,9 +414,6 @@ class Oblig3 {
       for (int i = 1; i < maxValues.length; i++)
         if (maxValues[i] > maxValues[0]) maxValues[0] = maxValues[i];
     }
-    /*b*/
-    /*c*/
-    /*d*/
   } // End Class MaxValueRunner
 
 
@@ -479,7 +429,7 @@ class Oblig3 {
     int [] sumCount;
     int [] b = new int [a.length];
     long starttime = System.nanoTime();
-    bwait = new CyclicBarrier(q + 1);
+    bwait = new CyclicBarrier(q);
     bfinish = new CyclicBarrier(q + 1);
     Runnable [] t = new Runnable [q];
     l = a.length;
@@ -499,34 +449,24 @@ class Oblig3 {
       t[i] = new MaxValueRunner(i, a, startpoint, endpoint);
       new Thread(t[i]).start();
     }
+
+
     
     try {
-      bwait.await();
+      bfinish.await();
     } catch (Exception e) {return;}
-    try {
-      bwait.await();
-      //sets maxValues[0] as max
-      max = maxValues[0];
-    } catch (Exception e) {return;}
-
-    pln("a1 (para findmax): " + (System.nanoTime() - starttime)/1000000.0);
-    System.out.println("par max: " + maxValues[0]);
-
 
     // end find maxValue.
 
 
-
-
-		// Gjøres i en av trådene..
+		//sets maxValues[0] as max
+		max = maxValues[0];
 		while (max >= (1<<numBit)) numBit++; // antall siffer i max
 
 		
 		
 
     // b, count values
-    bwait = new CyclicBarrier(q + 1);
-    bfinish = new CyclicBarrier(q + 1);
 
     int bit1 = numBit/2,
         bit2 = numBit-bit1;
@@ -542,42 +482,16 @@ class Oblig3 {
         endpoint = l/q*(i+1)-1;
       else
         endpoint = l-1;
-      //radixSort(a, b, bit1, 0); // første siffer fra a[] til b[]
-      //radixSort(b, a, bit2, bit1);// andre siffer, tilbake fra b[] til a[]
       allCount[i] = new int [mask+1];
 			allAcumCount[i] = new int [mask + 1];
-      t[i] = new RadixRunner2(i, a, b, allCount, allAcumCount, startpoint, endpoint, bit1, 0, bit2);
+      t[i] = new RadixRunner2(i, a, b, allCount, allAcumCount, startpoint, endpoint, bit1, bit2);
       new Thread(t[i]).start();
     }
+
+
+
 		try {
-			bwait.await();
-			starttime = System.nanoTime(); // starter å telle her for å se hvor lang tid det tar uten
-			// oppstart av trådene osv. for å se sammenligning av algoritme.
-			if (debug) pln(Thread.currentThread().getName() + " waiting");
-			bwait.await();
-			pln("b (para count values): " + (System.nanoTime() - starttime)/1000000.0 + "ms.");
-			bwait.await();
-			bwait.await();
-			bwait.await();
-			bwait.await();
-
-
-
-
-			bwait.await();
-			starttime = System.nanoTime(); // starter å telle her for å se hvor lang tid det tar uten
-			// oppstart av trådene osv. for å se sammenligning av algoritme.
-			if (debug) pln(Thread.currentThread().getName() + " waiting");
-			bwait.await();
-			pln("b (para count values): " + (System.nanoTime() - starttime)/1000000.0 + "ms.");
-			bwait.await();
-			bwait.await();
-			bwait.await();
-			
-
-
-
-			if (debug) pln(Thread.currentThread().getName() + " running");
+			bfinish.await();
 		} catch (Exception e) {return;}
   }
 
@@ -588,11 +502,11 @@ class Oblig3 {
 	 * Help class to start radix sort in parallel.
 	 */
   class RadixRunner2 implements Runnable {
-    int index, startpoint, endpoint, maskLen, shift, mask, bit2;
+    int index, startpoint, endpoint, maskLen, shift, mask, bit1, bit2;
     int a[], b[], count[], allCount[][], allAcumCount[][];
 		RadixRunner2(int index, int [] a, int [] b, int [][] allCount, 
 				int [][] allAcumCount, int startpoint, int endpoint, 
-				int maskLen, int shift, int bit2) {
+				int bit1, int bit2) {
       this.index = index;
       this.startpoint = startpoint;
       this.endpoint = endpoint;
@@ -603,97 +517,80 @@ class Oblig3 {
 			this.allCount = allCount;
 			this.allAcumCount = allAcumCount;
       this.count = allCount[index];
-			this.mask = (1 << maskLen) - 1;
+			this.bit1 = bit1;
 			this.bit2 = bit2;
     }
 
 
     public void run() {
  			try {
+				// b
+				shift = 0;
+				mask = (1 << bit1) - 1;
 				bwait.await();
-			} catch (Exception e) {return;}
-			allCount[index] = frequencyCount(startpoint, endpoint, a, count, mask, shift);
-			try {
+				allCount[index] = frequencyCount(startpoint, endpoint, a, count, mask, shift);
 				bwait.await();
-			} catch (Exception e) {return;}
-			// end b
+				// end b
 
 
-			// C
-			int startpointacu = allCount[0].length/q*index;
-			int endpointacu;
-			if (index != q-1) 
-				endpointacu = (allCount[0].length/q)*(index+1) - 1;
-			else
-				endpointacu = allCount[0].length - 1;
-			acumulatePerValueFreqCount(startpointacu, endpointacu, allCount, allAcumCount);
+				// C
+				int startpointacu = allCount[0].length/q*index;
+				int endpointacu;
+				if (index != q-1) 
+					endpointacu = (allCount[0].length/q)*(index+1) - 1;
+				else
+					endpointacu = allCount[0].length - 1;
+				acumulatePerValueFreqCount(startpointacu, endpointacu, allCount, allAcumCount);
 
- 			try {
 				bwait.await();
+
+				// C hoveddel, bruker tall fra 
+				if (index == 0) accumulateFreqCount(index, allCount);
+
+
+
+				bwait.await();
+
+
+				// D
+				moveNumbers(index, startpoint, endpoint, a, b, allCount[0], allAcumCount, shift, mask);
+
+				bwait.await();
+
+
+
+				// b igjen
+				shift = bit1;
+				mask = (1 << bit2) - 1;
+
+				bwait.await();
+				bwait.await();
+				allCount[index] = frequencyCount(startpoint, endpoint, b, count, mask, shift);
+				bwait.await();
+
+				// C
+				startpointacu = allCount[0].length/q*index;
+				if (index != q-1) 
+					endpointacu = (allCount[0].length/q)*(index+1) - 1;
+				else
+					endpointacu = allCount[0].length - 1;
+				acumulatePerValueFreqCount(startpointacu, endpointacu, allCount, allAcumCount);
+				bwait.await();
+
+				// C hoveddel, bruker tall fra 
+				if (index == 0) accumulateFreqCount(index, allCount);
+
+
+
+				bwait.await();
+
+				moveNumbers(index, startpoint, endpoint, b, a, allCount[0], allAcumCount, shift, mask);
+
+				bfinish.await();
 			} catch (Exception e) {return;} 
 
-			// C hoveddel, bruker tall fra 
-			if (index == 0) accumulateFreqCount(index, allCount);
-
-
-
- 			try {
-				bwait.await();
-			} catch (Exception e) {return;} 
-
-
-			// D
-			moveNumbers(index, startpoint, endpoint, a, b, allCount[0], allAcumCount, shift, mask);
-
- 			try {
-				bwait.await();
-			} catch (Exception e) {return;} 
-
-
-
-			// b igjen
-			shift = maskLen;
-			mask = (1 << bit2) - 1;
-
- 			try {
-				bwait.await();
-			} catch (Exception e) {return;} 
-			try {
-				bwait.await();
-			} catch (Exception e) {return;}
-			allCount[index] = frequencyCount(startpoint, endpoint, b, count, mask, shift);
-			try {
-				bwait.await();
-			} catch (Exception e) {return;}
-
-			// C
-			startpointacu = allCount[0].length/q*index;
-			if (index != q-1) 
-				endpointacu = (allCount[0].length/q)*(index+1) - 1;
-			else
-				endpointacu = allCount[0].length - 1;
-			acumulatePerValueFreqCount(startpointacu, endpointacu, allCount, allAcumCount);
- 			try {
-				bwait.await();
-			} catch (Exception e) {return;} 
-
-			// C hoveddel, bruker tall fra 
-			if (index == 0) accumulateFreqCount(index, allCount);
-
-
-
- 			try {
-				bwait.await();
-			} catch (Exception e) {return;} 
-
-			moveNumbers(index, startpoint, endpoint, b, a, allCount[0], allAcumCount, shift, mask);
-
- 			try {
-				bwait.await();
-			} catch (Exception e) {return;} 
-
-    }
-  }
+		}
+	}
 
 
 
