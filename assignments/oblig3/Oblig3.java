@@ -1,8 +1,53 @@
-// Kunne ha gjort:
-// Effektivisert ved å bruke opp igjen trådene. Men hadde resultert i mer
-// rotete kode.  Ved å sette to trådklasser for å løse oppgaven får vi også
-// målt forskjellen mellom a og b,c og d hver for seg selv om vi er klar over
-// at det er et større forbedringspotensiale.
+/* ***************************************************************************
+* Testing with an array with _100000000_ random numbers and doing it _9_ times 
+* 
+* Seq: 979.419
+* Par: 486.64
+* speedup: 2.012615074798619
+*
+* ============================================================================
+* 
+* Testing with an array with _10000000_ random numbers and doing it _9_ times 
+* 
+* Seq: 97.894
+* Par: 57.06
+* speedup: 1.7156326673676832
+* 
+* ============================================================================
+*
+* Testing with an array with _1000000_ random numbers and doing it _9_ times 
+* 
+* Seq: 9.923
+* Par: 7.972
+* speedup: 1.2447315604616156
+*
+* ============================================================================
+* 
+* Testing with an array with _100000_ random numbers and doing it _9_ times 
+* 
+* Seq: 0.819
+* Par: 2.169
+* speedup: 0.3775933609958506
+*
+* ============================================================================
+* 
+* Testing with an array with _10000_ random numbers and doing it _9_ times 
+* 
+* Seq: 0.1
+* Par: 1.576
+* speedup: 0.06345177664974619
+*
+* ============================================================================
+* 
+* Testing with an array with _1000_ random numbers and doing it _9_ times 
+* 
+* Seq: 0.009
+* Par: 1.684
+* speedup: 0.005344418052256532
+*
+*
+*/
+
 
 
 /*
@@ -40,7 +85,7 @@ class Oblig3 {
   int numBits = 10;
   int numSif;
   static int testCount = 1;
-  static int numberCount = 500;
+  static int numberCount = 10000;
   Random randomg = new Random(54544);
 	CyclicBarrier bwait, bfinish;
   // boolean filewrite = false;
@@ -533,20 +578,24 @@ class Oblig3 {
 				// end b
 
 
-				// C
+				// C del
 				int startpointacu = allCount[0].length/q*index;
 				int endpointacu;
 				if (index != q-1) 
 					endpointacu = (allCount[0].length/q)*(index+1) - 1;
 				else
 					endpointacu = allCount[0].length - 1;
+
+
 				acumulatePerValueFreqCount(startpointacu, endpointacu, allCount, allAcumCount);
+
 
 				bwait.await();
 
+
+
 				// C hoveddel, bruker tall fra 
 				if (index == 0) accumulateFreqCount(index, allCount);
-
 
 
 				bwait.await();
@@ -554,6 +603,7 @@ class Oblig3 {
 
 				// D
 				moveNumbers(index, startpoint, endpoint, a, b, allCount[0], allAcumCount, shift, mask);
+
 
 				bwait.await();
 
@@ -563,8 +613,6 @@ class Oblig3 {
 				shift = bit1;
 				mask = (1 << bit2) - 1;
 
-				bwait.await();
-				bwait.await();
 				allCount[index] = frequencyCount(startpoint, endpoint, b, count, mask, shift);
 				bwait.await();
 
