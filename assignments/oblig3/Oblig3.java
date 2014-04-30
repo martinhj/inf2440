@@ -41,7 +41,7 @@ class Oblig3 {
   int numSif;
   static int testCount = 1;
   static int numberCount = 500;
-  Random randomg = new Random();
+  Random randomg = new Random(54544);
 	CyclicBarrier bwait, bfinish;
   // boolean filewrite = false;
 
@@ -86,17 +86,15 @@ class Oblig3 {
   void runTest(int testCount, int numberCount) {
     double seq, par;
     int m [] = populate(numberCount);
-    int b [] = m.clone();
     String s, nl = "\n";
     s = "***Test***" + nl;
     s += "Testing with an array with _" + numberCount + "_ random numbers ";
     s += "and doing it _" + testCount + "_ times " + nl;
     pln(s);
-    seq = runSeqTest(b, testCount);
+    seq = runSeqTest(m, testCount);
     s = "Seq: " + seq;
     pln(s);
-    b = m.clone();
-    par = runParTest(b, testCount);
+    par = runParTest(m, testCount);
     s = "Par: " + par;
     pln(s);
   }
@@ -110,11 +108,10 @@ class Oblig3 {
   double runSeqTest(int [] n, int testCount) {
     long [] t = new long [testCount];
     long startTime;
-    int b [];
     for (int i = 0; i < t.length; i++) {
-      b = n.clone();
+			n = populate(numberCount);
       startTime = System.nanoTime();
-      radix2(b);
+      radix2(n);
       t[i] = System.nanoTime() - startTime;
     }
     Arrays.sort(t);
@@ -135,11 +132,10 @@ class Oblig3 {
     //d
     long [] t = new long [testCount];
     long startTime;
-    int b [];
     for (int i = 0; i < t.length; i++) {
-      b = n.clone(); 
+			n = populate(numberCount);
       startTime = System.nanoTime();
-      radix2Par(b);
+      radix2Par(n);
       t[i] = System.nanoTime() - startTime;
     }
     Arrays.sort(t);
@@ -197,20 +193,6 @@ class Oblig3 {
     //if (filewrite) file.
   }
 
-	synchronized static void printArray(int [][] allCount, int index) {
-		if (index == 0)
-			p("count  : ");
-			for (int j = 0; j < allCount[0].length; j++)
-				p(j + "; ");
-			pln();
-			for (int i = 0; i < q; i++) {
-				p("count " + i + ": ");
-				for (int j = 0; j < allCount[index].length; j++)
-					p("" + allCount[i][j] + "; ");
-				pln();
-			}
-	}
-
 
 
 
@@ -262,20 +244,7 @@ class Oblig3 {
       localCount[(array[i]>> shift) & mask]++; }
 		return localCount;
   }
-
-
-
-	/**
-	 * Sum up frequency count of the different threads.
-	 * Eventuelt i skritt B.
-	 * Trengs denne?
-	 */
-	void sumFrequencyCount(int [][] allCount) {
-		// eller jobbe mot en globalcount?
-		//int [] count = new int [/* ??? */];
-		// sette sammen hvor mange 
-		// return count;
-	}
+	
 
 
 
@@ -283,23 +252,7 @@ class Oblig3 {
 	 * Accumulate sums of the frequency count.
 	 * Skritt C.
 	 */
-	// eller skal endpoint byttes ut med length?
 	void accumulateFreqCount(int index, int [][] allCount) {
-		// Men hvordan skal den klare å akkumulere i tråder, når vi er avhengige 
-		// av all data til venstre i denne prosessen.
-		//
-		// => Sekvensielt gå gjennom i = fra 0 til count.length
-		// (allCount[0].length) og legge sammen allCount[q-1][i] og
-		// allAccumCount[q-1][i]. 
-		//
-		// Legger sammen akkumlerte fra siste akkumulert per tråd / per verdi og
-		// siste verdi allCount (siste tråds allCount).
-		// Kanskje parallelisere akkumuleringsdata for per tråd og så kjøre
-		// akkumuleringen sekvensielt?
-		//
-		//	for (j = fra 0 til antall tråder - 1)
-		//		count[i] = 
-		//
 		int n, acumVal = 0;
 		for (int i = 0; i < allCount[index].length; i++) {
       n = allCount[q-1][i];
@@ -313,7 +266,6 @@ class Oblig3 {
 	/**
 	 * Acumulate per value.
 	 * Del av skritt C.
-	 * Hver tråd får en offset på hvor den skal sette inn verdiene
 	 */
 	void acumulatePerValueFreqCount(int startpoint, int endpoint, 
 			int [][] allCount, int [][] allAcumCount) {
@@ -324,9 +276,7 @@ class Oblig3 {
 				allAcumCount[j][i] = acumVal;
 				acumVal += allCount[j][i];
 			}
-			// her kan en lagre verdien som skal akumuleres opp i count. Den er
-			// allerede utregnet.
-			//	 sumCount[q-1] = acumVal;
+			// lagrer verdien i den siste trådens plass i allCount
 			allCount[q-1][i] = acumVal;
 		}
 	}
@@ -335,34 +285,18 @@ class Oblig3 {
 
 
 	/**
-	 * Gjennomføre D.
+	 * Move values from one array to another.
+	 * Skritt D
 	 */
 	void moveNumbers(int index, int startpoint, int endpoint, int [] fromArray, int []
 			toArray, int [] count, int [][] allAcumCount, int shift, int mask) {
 
 
-		int number, offset; // regner med at offset fjernes av jit og derfor ikke 
-		//pln("Skriver ut med start: " + startpoint + " og slutt " + endpoint);
-		// utfordrer ytelsen i antall kjøringer som er aktuelt her (husk flest først,
-		// færrest til sist (milliarder og millioner før tusner - jit).
-		String s;
+		int number, offset; 
 		for (int i = startpoint; i <= endpoint; i++) {
 			number = (fromArray[i]>>shift) & mask;
-			// feil i offset!!!
 			offset = allAcumCount[index][number]++;
-			s = Thread.currentThread().getName();
-			//pln(i + " i " + s + " putter inn " + fromArray[i] + " - " + Integer.toBinaryString(fromArray[i]) + " på (" + count[number] + " + " + offset + ")" + (count[number] + offset));
 			toArray[count[number]+offset] = fromArray[i];
-			//count[number]++;
-			//			^								^  trengs disse parantesene?
-
-			// count[(fromArray[i]>>shift) & mask]++ <= Denne (++) oppdaterer pointer
-			// på hvor neste tall skal legges inn.
-			// Her må også allAcumCount (offsett) tas med. allAcumCount[index] for å
-			// hente ut for riktig tråd.
-			// Og allAcumCount[][(fromArray[i]>>shift) & mask] for å få ut offsett
-			// for riktig tall.
-			// toArray[count[(fromArray[i]>>shift) & mask]++] = fromArray[i];
 		}
 	}
 
@@ -409,8 +343,6 @@ class Oblig3 {
 
 
     radixSort(a, b, bit1, 0); // første siffer fra a[] til b[]
-		for (int i = 0; i < b.length; i++)
-			pln(b[i]);
     radixSort(b, a, bit2, bit1);// andre siffer, tilbake fra b[] til a[]
 
   } // end radix2
@@ -447,8 +379,6 @@ class Oblig3 {
 
     if (debug) stoptime = System.nanoTime();
     if (debug) p("b: " + ((stoptime - starttime)/1000000.0)+ "ms\n");
-		//for (int i = 0; i < count.length; i++)
-		//	pln("count[" + i + "]: " + count[i]);
 		
 		
 	
@@ -479,10 +409,6 @@ class Oblig3 {
     for (int i = 0; i < n; i++) {
       b[count[(a[i]>>shift) & mask]++] = a[i]; 
 		}
-		/* for (int i = 0; i < n; i++) { */
-		/* 	pln(b[i] + ": " + Integer.toBinaryString(b[i])); */
-		/* } */
-
 
     if (debug) stoptime = System.nanoTime();
     if (debug) p("d: " + ((stoptime - starttime)/1000000.0) + "ms\n");
@@ -651,35 +577,8 @@ class Oblig3 {
 
 
 
-			for (int j = 0; j < a.length; j++) {
-				pln(j + ": " + a[j] + " - " + Integer.toBinaryString(b[j]));
-			}
 			if (debug) pln(Thread.currentThread().getName() + " running");
 		} catch (Exception e) {return;}
-
-		/* try { */
-		/* 	if (debug) pln(Thread.currentThread().getName() + " waiting again"); */
-		/* 	bfinish.await(); */
-		/* 	if (debug) pln(Thread.currentThread().getName() + " finished"); */
-		/* } catch (Exception e) {return;} */
-
-		// summerer opp count.
-			/* for (int i = 0; i < allCount.length; i++) { */
-			/* 	for (int j = 0; j < sumCount.length; j++) { */
-			/* 		sumCount[j] += allCount[i][j]; */
-			/* 	} */
-			/* } */
-		//new Thread(t[i] = new MaxValueRunner(i, a, startpoint, endpoint, bit2, bit1)).start();
-		//t[i] = new RadixRunner(i, a, allCount[i], startpoint, endpoint, bit1, 0);
-		//new Thread(t[i]).start();
-
-
-
-
-
-    // c
-    // d
-
   }
 
 
@@ -691,10 +590,6 @@ class Oblig3 {
   class RadixRunner2 implements Runnable {
     int index, startpoint, endpoint, maskLen, shift, mask, bit2;
     int a[], b[], count[], allCount[][], allAcumCount[][];
-		// ta inn bit1 og bit2 her, slik at vi kan kjøre gjennom begge turene uten
-		// å måtte starte opp igjen ny tråder.
-		// Bytte ut maskLen med bit1 og shift med bit2 så bruke disse som maskLen
-		// og shift den ene og andre veien.
 		RadixRunner2(int index, int [] a, int [] b, int [][] allCount, 
 				int [][] allAcumCount, int startpoint, int endpoint, 
 				int maskLen, int shift, int bit2) {
@@ -717,65 +612,28 @@ class Oblig3 {
  			try {
 				bwait.await();
 			} catch (Exception e) {return;}
-     // telle antall verdier i hvert sitt område.
-			// legge inn en wait som gjør at alle er ferdige med oppstarten før
-			// tidtakning.
 			allCount[index] = frequencyCount(startpoint, endpoint, a, count, mask, shift);
 			try {
 				bwait.await();
-				// summere opp counts fra parallel opptelling her.
-				// sumParallelCounts(allCount);
 			} catch (Exception e) {return;}
-				
-			// Telle opp hvor mange de tidligere trådene trenger av plass for en 
-			// konkret verdi, så d (i samme operasjon).
+			// end b
 
 
 			// C
-			//
-			//
-			// C - finne offset for hvor hver tråd skal sette inn sine verdier.
-			// hvilket sp og ep?
-			// Trengere allAcum og allCount, nå har tråden kun sine counts.
-			// Dele opp count i like store deler:
-			// sp: allCount[0].length / q * i
-			// ep: allCount[0].length / (q*i+1) - 1
-			// og siste endpoint:
-			// allCount[0].length - 1
-			//
 			int startpointacu = allCount[0].length/q*index;
 			int endpointacu;
 			if (index != q-1) 
 				endpointacu = (allCount[0].length/q)*(index+1) - 1;
 			else
 				endpointacu = allCount[0].length - 1;
-			// sørge for at allAcumCount er initiert her før metoden kjøres.
-			/* for (int i = 0; i < allCount.length; i++) { */
-			/* 	p("count " + i + ": "); */
-			/* 	for (int j = 0; j < allCount[i].length; j++) */
-			/* 		p("" + allCount[i][j] + "; "); */
-			/* 	pln(); */
-			/* } */
 			acumulatePerValueFreqCount(startpointacu, endpointacu, allCount, allAcumCount);
-			/* if (index == 0) for (int j = 0; j < allAcumCount[0].length; j++) { */
-			/* 	p("acum " + j + ": "); */
-			/* 	for (int i = 0; i < allAcumCount.length; i++) { */
-			/* 		p("" + allAcumCount[i][j] + "; "); */
-			/* 	} */
-			/* 	pln(); */
-			/* } */
 
-			//vente på at alle trådene er ferdig.
  			try {
 				bwait.await();
 			} catch (Exception e) {return;} 
-			// if (index == 0) printArray(allAcumCount, index);
 
 			// C hoveddel, bruker tall fra 
-			// if (index == 0) sekvensielt akumulere (eller la alle trådene legge
-			// sammen, sparer en barrier før skritt D.
 			if (index == 0) accumulateFreqCount(index, allCount);
-			//printArray(allCount, index);
 
 
 
@@ -785,23 +643,11 @@ class Oblig3 {
 
 
 			// D
-			// Hvordan skal  moveNumbers() kalles? Her trengs en fraArray og en
-			// tilArray. maskLen og shift er tilgjenglig. 
-			// index, a fraArray, b tilArray, mask, shift
-			// samme start og endpoint?
-			// hvilken count-variabel?
-			// trenger også acumAll-eller hva det var for noe.
 			moveNumbers(index, startpoint, endpoint, a, b, allCount[0], allAcumCount, shift, mask);
 
  			try {
 				bwait.await();
 			} catch (Exception e) {return;} 
-
-			if (index == 0) for (int i = 0; i < b.length; i++) 
-				pln(b[i]);
-
-
-
 
 
 
@@ -815,64 +661,24 @@ class Oblig3 {
 			try {
 				bwait.await();
 			} catch (Exception e) {return;}
-     // telle antall verdier i hvert sitt område.
-			// legge inn en wait som gjør at alle er ferdige med oppstarten før
-			// tidtakning.
 			allCount[index] = frequencyCount(startpoint, endpoint, b, count, mask, shift);
 			try {
 				bwait.await();
-				// summere opp counts fra parallel opptelling her.
-				// sumParallelCounts(allCount);
 			} catch (Exception e) {return;}
-				
-			// Telle opp hvor mange de tidligere trådene trenger av plass for en 
-			// konkret verdi, så d (i samme operasjon).
-
 
 			// C
-			//
-			//
-			// C - finne offset for hvor hver tråd skal sette inn sine verdier.
-			// hvilket sp og ep?
-			// Trengere allAcum og allCount, nå har tråden kun sine counts.
-			// Dele opp count i like store deler:
-			// sp: allCount[0].length / q * i
-			// ep: allCount[0].length / (q*i+1) - 1
-			// og siste endpoint:
-			// allCount[0].length - 1
-			//
 			startpointacu = allCount[0].length/q*index;
 			if (index != q-1) 
 				endpointacu = (allCount[0].length/q)*(index+1) - 1;
 			else
 				endpointacu = allCount[0].length - 1;
-			// sørge for at allAcumCount er initiert her før metoden kjøres.
-			/* for (int i = 0; i < allCount.length; i++) { */
-			/* 	p("count " + i + ": "); */
-			/* 	for (int j = 0; j < allCount[i].length; j++) */
-			/* 		p("" + allCount[i][j] + "; "); */
-			/* 	pln(); */
-			/* } */
 			acumulatePerValueFreqCount(startpointacu, endpointacu, allCount, allAcumCount);
-			/* if (index == 0) for (int j = 0; j < allAcumCount[0].length; j++) { */
-			/* 	p("acum " + j + ": "); */
-			/* 	for (int i = 0; i < allAcumCount.length; i++) { */
-			/* 		p("" + allAcumCount[i][j] + "; "); */
-			/* 	} */
-			/* 	pln(); */
-			/* } */
-
-			//vente på at alle trådene er ferdig.
  			try {
 				bwait.await();
 			} catch (Exception e) {return;} 
-			// if (index == 0) printArray(allAcumCount, index);
 
 			// C hoveddel, bruker tall fra 
-			// if (index == 0) sekvensielt akumulere (eller la alle trådene legge
-			// sammen, sparer en barrier før skritt D.
 			if (index == 0) accumulateFreqCount(index, allCount);
-			//printArray(allCount, index);
 
 
 
@@ -880,29 +686,11 @@ class Oblig3 {
 				bwait.await();
 			} catch (Exception e) {return;} 
 
-
-			// D
-			// Hvordan skal  moveNumbers() kalles? Her trengs en fraArray og en
-			// tilArray. maskLen og shift er tilgjenglig. 
-			// index, a fraArray, b tilArray, mask, shift
-			// samme start og endpoint?
-			// hvilken count-variabel?
-			// trenger også acumAll-eller hva det var for noe.
 			moveNumbers(index, startpoint, endpoint, b, a, allCount[0], allAcumCount, shift, mask);
 
  			try {
 				bwait.await();
 			} catch (Exception e) {return;} 
-
-
-
-
-
-			/* try { */
-			/* 	if (debug) pln(Thread.currentThread().getName() + " waiting again"); */
-			/* 	bfinish.await(); */
-			/* 	if (debug) pln(Thread.currentThread().getName() + " waiting finished"); */
-			/* } catch (Exception e) {return;} */
 
     }
   }
