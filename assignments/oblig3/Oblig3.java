@@ -409,6 +409,8 @@ class Oblig3 {
 
 
     radixSort(a, b, bit1, 0); // første siffer fra a[] til b[]
+		for (int i = 0; i < b.length; i++)
+			pln(b[i]);
     radixSort(b, a, bit2, bit1);// andre siffer, tilbake fra b[] til a[]
 
   } // end radix2
@@ -631,6 +633,7 @@ class Oblig3 {
 			bwait.await();
 			bwait.await();
 			bwait.await();
+			bwait.await();
 
 
 
@@ -648,8 +651,8 @@ class Oblig3 {
 
 
 
-			for (int j = 0; j < b.length; j++) {
-				pln(j + ": " + b[j] + " - " + Integer.toBinaryString(b[j]));
+			for (int j = 0; j < a.length; j++) {
+				pln(j + ": " + a[j] + " - " + Integer.toBinaryString(b[j]));
 			}
 			if (debug) pln(Thread.currentThread().getName() + " running");
 		} catch (Exception e) {return;}
@@ -790,12 +793,19 @@ class Oblig3 {
 			// trenger også acumAll-eller hva det var for noe.
 			moveNumbers(index, startpoint, endpoint, a, b, allCount[0], allAcumCount, shift, mask);
 
+ 			try {
+				bwait.await();
+			} catch (Exception e) {return;} 
+
+			if (index == 0) for (int i = 0; i < b.length; i++) 
+				pln(b[i]);
 
 
 
 
 
 
+			// b igjen
 			shift = maskLen;
 			mask = (1 << bit2) - 1;
 
@@ -808,7 +818,7 @@ class Oblig3 {
      // telle antall verdier i hvert sitt område.
 			// legge inn en wait som gjør at alle er ferdige med oppstarten før
 			// tidtakning.
-			allCount[index] = frequencyCount(startpoint, endpoint, a, count, mask, shift);
+			allCount[index] = frequencyCount(startpoint, endpoint, b, count, mask, shift);
 			try {
 				bwait.await();
 				// summere opp counts fra parallel opptelling her.
@@ -878,7 +888,7 @@ class Oblig3 {
 			// samme start og endpoint?
 			// hvilken count-variabel?
 			// trenger også acumAll-eller hva det var for noe.
-			moveNumbers(index, startpoint, endpoint, a, b, allCount[0], allAcumCount, shift, mask);
+			moveNumbers(index, startpoint, endpoint, b, a, allCount[0], allAcumCount, shift, mask);
 
  			try {
 				bwait.await();
