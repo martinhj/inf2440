@@ -3,6 +3,23 @@
  */ 
 
 
+/*
+ * Den paralleliserte utgaven deler opp etter antall primtall. Men det blir
+ * veldig lite jobb til trådene > 0 da sannsynligheten for å finne et 
+ * multiplum er 1/2 for 2, 1/3 for 3 og 1/30000 for 30000. Dele opp trådene
+ * etter sannsynlighet istedenfor at det blir lik lengde på det. 
+ *
+ * Videre bruke en AtomicLong til å dele rest mellom trådene framfor å kjøre
+ * det som en egen metode (forelesning uke11).
+ *
+ * Ta med optimaliseringen fra den sekvensielle metoden (kvadratrot av num), nå
+ * med en AtomicLong som num ,
+ * (lurer på om sekvensiell optimalisering ikke er tatt med her - kvadrat av num
+ * (tallet) framfor facNum (resten). Skal gå å sjekke mot resten i stedenfor tallet.
+ * (trenger ikke å sjekke for tall større enn resten (og heller ikke kvadratroten
+ * av resten?))).
+
+
 
 
 
@@ -721,6 +738,9 @@ ArrayList<Long> factorize (long num) {
 /**
  * @return an arraylist with the multiples in a factorized number @param num
  * Finds multiples between start and end.
+ * @param num
+ * @param start 
+ * @param end
  */
 ArrayList<Long> factorizePara (long num, int start, int end) {
   ArrayList <Long> fac = new ArrayList <Long>();
