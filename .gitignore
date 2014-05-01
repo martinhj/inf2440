@@ -1,3 +1,4 @@
 .DS_*
 *.class
 .tags
+vimbook.vim
