@@ -1,52 +1,63 @@
 /* ***************************************************************************
-* Testing with an array with _100000000_ random numbers and doing it _9_ times 
-* 
-* Seq: 979.419
-* Par: 486.64
-* speedup: 2.012615074798619
-*
-* ============================================================================
-* 
-* Testing with an array with _10000000_ random numbers and doing it _9_ times 
-* 
-* Seq: 97.894
-* Par: 57.06
-* speedup: 1.7156326673676832
-* 
-* ============================================================================
-*
-* Testing with an array with _1000000_ random numbers and doing it _9_ times 
-* 
-* Seq: 9.923
-* Par: 7.972
-* speedup: 1.2447315604616156
-*
-* ============================================================================
-* 
-* Testing with an array with _100000_ random numbers and doing it _9_ times 
-* 
-* Seq: 0.819
-* Par: 2.169
-* speedup: 0.3775933609958506
-*
-* ============================================================================
-* 
-* Testing with an array with _10000_ random numbers and doing it _9_ times 
-* 
-* Seq: 0.1
-* Par: 1.576
-* speedup: 0.06345177664974619
-*
-* ============================================================================
-* 
-* Testing with an array with _1000_ random numbers and doing it _9_ times 
-* 
-* Seq: 0.009
-* Par: 1.684
-* speedup: 0.005344418052256532
-*
-*
-*/
+ * RAPPORT
+ *
+ * Steg C ble parallelisert ved å telle opp for hver tråd hvilken possisjon
+ * denne skulle plassere inn sine verdier inn i arrayen. Dette ble gjort ved å
+ * akumulere opptellingene for hver verdi per tråd. Da disse var akumulert ble
+ * resultatet for den siste tråden sammen med opptellingen for den siste tråden
+ * lagt sammen og lagt tilbake i opptellingstråden. Etter dette gikk en tråd
+ * gjennom disse summene og akkumulerte opp startpossisjonene for hver verdi.
+ * (se linje 563 - 590.)
+ *
+ *
+ * Testing with an array with _100000000_ random numbers and doing it _9_ times 
+ * 
+ * Seq: 979.419
+ * Par: 486.64
+ * speedup: 2.012615074798619
+ *
+ * ============================================================================
+ * 
+ * Testing with an array with _10000000_ random numbers and doing it _9_ times 
+ * 
+ * Seq: 97.894
+ * Par: 57.06
+ * speedup: 1.7156326673676832
+ * 
+ * ============================================================================
+ *
+ * Testing with an array with _1000000_ random numbers and doing it _9_ times 
+ * 
+ * Seq: 9.923
+ * Par: 7.972
+ * speedup: 1.2447315604616156
+ *
+ * ============================================================================
+ * 
+ * Testing with an array with _100000_ random numbers and doing it _9_ times 
+ * 
+ * Seq: 0.819
+ * Par: 2.169
+ * speedup: 0.3775933609958506
+ *
+ * ============================================================================
+ * 
+ * Testing with an array with _10000_ random numbers and doing it _9_ times 
+ * 
+ * Seq: 0.1
+ * Par: 1.576
+ * speedup: 0.06345177664974619
+ *
+ * ============================================================================
+ * 
+ * Testing with an array with _1000_ random numbers and doing it _9_ times 
+ * 
+ * Seq: 0.009
+ * Par: 1.684
+ * speedup: 0.005344418052256532
+ *
+ *
+ */
 
 
 
@@ -88,12 +99,13 @@ class Oblig3 {
   static int numberCount = 10000;
   Random randomg = new Random(54544);
 	CyclicBarrier bwait, bfinish;
-  // boolean filewrite = false;
 
 
-  /*
-   * findmax global variables.
-   */
+
+	boolean testSort = true;
+	
+
+
   int [] maxValues;
 	static int [] gCount;
 
@@ -162,6 +174,7 @@ class Oblig3 {
       startTime = System.nanoTime();
       radix2(n);
       t[i] = System.nanoTime() - startTime;
+			if (testSort) testSort(n);
     }
     Arrays.sort(t);
     return t[testCount/2]/1000000.0;
@@ -181,60 +194,10 @@ class Oblig3 {
       startTime = System.nanoTime();
       radix2Par(n);
       t[i] = System.nanoTime() - startTime;
+			if (testSort) testSort(n);
     }
     Arrays.sort(t);
     return t[testCount/2]/1000000.0;
-  }
-
-
-
-
-  /**
-   * Print to screen and/or file.
-   */
-  synchronized static void pln(int s) {
-    p("" + s + "\n");
-  }
-
-
-
-
-  /**
-   * Print to screen and/or file.
-   */
-  synchronized static void pln(String s) {
-    p(s + "\n");
-  }
-
-
-
-
-  /**
-   * Print to screen and/or file.
-   */
-  synchronized static void pln() {
-    p("\n");
-  }
-
-
-
-
-  /**
-   * Print to screen and/or file.
-   */
-  synchronized static void p(int s) {
-    p("" + s);
-  }
-
-
-
-
-  /**
-   * Print to screen and/or file.
-   */
-  synchronized static void p(String s) {
-    System.out.print(s);
-    //if (filewrite) file.
   }
 
 
@@ -254,6 +217,14 @@ class Oblig3 {
 
 
 
+	/**
+	 * Test if arrays are sorted.
+	 */
+	void testSort(int [] n) {
+		for (int i = 1; i < n.length; i++)
+			if (n[i] < n[i - 1]) 
+				pln("On line " + i + " there is a value smaller than an earlier value.");
+	}
   /**
    * Finds the largest value in the range between {@code startpoint}
    * and {@code endpoint} in an int array {@code n}.
@@ -277,76 +248,6 @@ class Oblig3 {
 
 
 
-  /**
-   * Count the frequency of each digit.
-	 * Skritt B
-   */
-  int [] frequencyCount(int startpoint, int endpoint, int [] array,
-                      int [] _localCount, int mask, int shift) {
-		int [] localCount = new int [_localCount.length];
-    for (int i = startpoint; i <= endpoint; i++) {
-      localCount[(array[i]>> shift) & mask]++; }
-		return localCount;
-  }
-	
-
-
-
-	/**
-	 * Accumulate sums of the frequency count.
-	 * Skritt C.
-	 */
-	void accumulateFreqCount(int index, int [][] allCount) {
-		int n, acumVal = 0;
-		for (int i = 0; i < allCount[index].length; i++) {
-      n = allCount[q-1][i];
-      allCount[index][i] = acumVal; acumVal += n;
-		}
-	}
-
-
-
-
-	/**
-	 * Acumulate per value.
-	 * Del av skritt C.
-	 */
-	void acumulatePerValueFreqCount(int startpoint, int endpoint, 
-			int [][] allCount, int [][] allAcumCount) {
-		int acumVal, n;
-		for (int i = startpoint; i <= endpoint; i++) {
-			acumVal = 0;
-			for (int j = 0; j < q; j++) {
-				allAcumCount[j][i] = acumVal;
-				acumVal += allCount[j][i];
-			}
-			// lagrer verdien i den siste trådens plass i allCount
-			allCount[q-1][i] = acumVal;
-		}
-	}
-
-
-
-
-	/**
-	 * Move values from one array to another.
-	 * Skritt D
-	 */
-	void moveNumbers(int index, int startpoint, int endpoint, int [] fromArray, int []
-			toArray, int [] count, int [][] allAcumCount, int shift, int mask) {
-
-
-		int number, offset; 
-		for (int i = startpoint; i <= endpoint; i++) {
-			number = (fromArray[i]>>shift) & mask;
-			offset = allAcumCount[index][number]++;
-			toArray[count[number]+offset] = fromArray[i];
-		}
-	}
-
-
-
-
   /** 
    * Radix sort with two digits.
    */
@@ -360,7 +261,6 @@ class Oblig3 {
     // a) finn max verdi i a[]
     for (int i = 1 ; i < a.length ; i++)
       if (a[i] > max) max = a[i];
-    //pln("seq max: " + max);
 
 
 
@@ -412,54 +312,6 @@ class Oblig3 {
 		}
 
   }// end radixSort
-
-
-
-
-
-  /**
-   * This class is a help class to start code in the different threads.
-   * It will reuse the threads for each step in the process.
-   * @param index         What thread.
-   * @param a             What array.
-   * @param startpoint    First value which the thread got responsibility for.
-   * @param endpoint      Last value which the thread got responsibility for.
-   */
-  class MaxValueRunner implements Runnable {
-    final int index, startpoint, endpoint;
-    final int [] a;
-    MaxValueRunner(int index, int [] a, int startpoint, int endpoint) {
-      this.index = index;
-      this.startpoint = startpoint;
-      this.endpoint = endpoint;
-      this.a = a;
-    }
-    public void run() {
-      pfindMax();
-      try {
-        bwait.await();
-      } catch (Exception e) {return;}
-      // sets the maxValues[0] as max.
-      if (index == 0)
-        mergeMaxValues();
-      try {
-        bfinish.await();
-      } catch (Exception e) {return;}
-    }
-
-
-
-    void pfindMax() {
-      maxValues[index] = findMax(a, startpoint, endpoint);
-    }
-
-    
-    
-    void mergeMaxValues() {
-      for (int i = 1; i < maxValues.length; i++)
-        if (maxValues[i] > maxValues[0]) maxValues[0] = maxValues[i];
-    }
-  } // End Class MaxValueRunner
 
 
 
@@ -543,32 +395,79 @@ class Oblig3 {
 
 
 
-	/**
-	 * Help class to start radix sort in parallel.
-	 */
-  class RadixRunner2 implements Runnable {
-    int index, startpoint, endpoint, maskLen, shift, mask, bit1, bit2;
-    int a[], b[], count[], allCount[][], allAcumCount[][];
-		RadixRunner2(int index, int [] a, int [] b, int [][] allCount, 
-				int [][] allAcumCount, int startpoint, int endpoint, 
-				int bit1, int bit2) {
+  /**
+   * This class is a help class to start code in the different threads.
+   * It will reuse the threads for each step in the process.
+   * @param index         What thread.
+   * @param a             What array.
+   * @param startpoint    First value which the thread got responsibility for.
+   * @param endpoint      Last value which the thread got responsibility for.
+   */
+  class MaxValueRunner implements Runnable {
+    final int index, startpoint, endpoint;
+    final int [] a;
+    MaxValueRunner(int index, int [] a, int startpoint, int endpoint) {
       this.index = index;
       this.startpoint = startpoint;
       this.endpoint = endpoint;
-      this.maskLen = maskLen;
-      this.shift = shift;
       this.a = a;
-      this.b = b;
-			this.allCount = allCount;
-			this.allAcumCount = allAcumCount;
-      this.count = allCount[index];
-			this.bit1 = bit1;
-			this.bit2 = bit2;
+    }
+    public void run() {
+      pfindMax();
+      try {
+        bwait.await();
+      } catch (Exception e) {return;}
+      // sets the maxValues[0] as max.
+      if (index == 0)
+        mergeMaxValues();
+      try {
+        bfinish.await();
+      } catch (Exception e) {return;}
     }
 
 
-    public void run() {
- 			try {
+
+    void pfindMax() {
+      maxValues[index] = findMax(a, startpoint, endpoint);
+    }
+
+    
+    
+    void mergeMaxValues() {
+      for (int i = 1; i < maxValues.length; i++)
+        if (maxValues[i] > maxValues[0]) maxValues[0] = maxValues[i];
+    }
+  } // End Class MaxValueRunner
+
+
+
+
+	/**
+	 * Help class to start radix sort in parallel.
+	 */
+	class RadixRunner2 implements Runnable {
+		int index, startpoint, endpoint, maskLen, shift, mask, bit1, bit2;
+		int a[], b[], count[], allCount[][], allAcumCount[][];
+		RadixRunner2(int index, int [] a, int [] b, int [][] allCount, 
+				int [][] allAcumCount, int startpoint, int endpoint, 
+				int bit1, int bit2) {
+			this.index = index;
+			this.startpoint = startpoint;
+			this.endpoint = endpoint;
+			this.maskLen = maskLen;
+			this.shift = shift;
+			this.a = a;
+			this.b = b;
+			this.allCount = allCount;
+			this.allAcumCount = allAcumCount;
+			this.count = allCount[index];
+			this.bit1 = bit1;
+			this.bit2 = bit2;
+		}
+
+
+		public void run() {
+			try {
 				// b
 				shift = 0;
 				mask = (1 << bit1) - 1;
@@ -638,7 +537,130 @@ class Oblig3 {
 			} catch (Exception e) {return;} 
 
 		}
+
+
+
+
+		/**
+		 * Count the frequency of each digit.
+		 * Skritt B
+		 */
+		int [] frequencyCount(int startpoint, int endpoint, int [] array,
+				int [] _localCount, int mask, int shift) {
+			int [] localCount = new int [_localCount.length];
+			for (int i = startpoint; i <= endpoint; i++) {
+				localCount[(array[i]>> shift) & mask]++; }
+			return localCount;
+		}
+
+
+
+
+		/**
+		 * Accumulate sums of the frequency count.
+		 * Skritt C.
+		 */
+		void accumulateFreqCount(int index, int [][] allCount) {
+			int n, acumVal = 0;
+			for (int i = 0; i < allCount[index].length; i++) {
+				n = allCount[q-1][i];
+				allCount[index][i] = acumVal; acumVal += n;
+			}
+		}
+
+
+
+
+		/**
+		 * Acumulate per value.
+		 * Del av skritt C.
+		 */
+		void acumulatePerValueFreqCount(int startpoint, int endpoint, 
+				int [][] allCount, int [][] allAcumCount) {
+			int acumVal, n;
+			for (int i = startpoint; i <= endpoint; i++) {
+				acumVal = 0;
+				for (int j = 0; j < q; j++) {
+					allAcumCount[j][i] = acumVal;
+					acumVal += allCount[j][i];
+				}
+				// lagrer verdien i den siste trådens plass i allCount
+				allCount[q-1][i] = acumVal;
+			}
+		}
+
+
+
+
+		/**
+		 * Move values from one array to another.
+		 * Skritt D
+		 */
+		void moveNumbers(int index, int startpoint, int endpoint, int [] fromArray, int []
+				toArray, int [] count, int [][] allAcumCount, int shift, int mask) {
+
+
+			int number, offset; 
+			for (int i = startpoint; i <= endpoint; i++) {
+				number = (fromArray[i]>>shift) & mask;
+				offset = allAcumCount[index][number]++;
+				toArray[count[number]+offset] = fromArray[i];
+			}
+		}
 	}
+
+
+
+
+  /**
+   * Print to screen and/or file.
+   */
+  synchronized static void pln(int s) {
+    p("" + s + "\n");
+  }
+
+
+
+
+  /**
+   * Print to screen and/or file.
+   */
+  synchronized static void pln(String s) {
+    p(s + "\n");
+  }
+
+
+
+
+  /**
+   * Print to screen and/or file.
+   */
+  synchronized static void pln() {
+    p("\n");
+  }
+
+
+
+
+  /**
+   * Print to screen and/or file.
+   */
+  synchronized static void p(int s) {
+    p("" + s);
+  }
+
+
+
+
+  /**
+   * Print to screen and/or file.
+   */
+  synchronized static void p(String s) {
+    System.out.print(s);
+    //if (filewrite) file.
+  }
+
+
 
 
 
