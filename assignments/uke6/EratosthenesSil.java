@@ -18,6 +18,7 @@
  * (tallet) framfor facNum (resten). Skal gå å sjekke mot resten i stedenfor tallet.
  * (trenger ikke å sjekke for tall større enn resten (og heller ikke kvadratroten
  * av resten?))).
+ * Var ikke tatt med. Lagt til nå.
 
 
 
@@ -319,7 +320,7 @@ void runTest(int numberOfTests) {
   System.out.print("Number of primes seq: ");
   System.out.println(countAllPrimes());
   System.out.print("Erastosthenes Sil parallelt: ");
-  //System.out.println((eraPara = runEraParTest(numberOfTests)) + "ms.");
+  System.out.println((eraPara = runEraParTest(numberOfTests)) + "ms.");
   //System.out.print("Number of primes para: ");
   //printAllPrimes();
   //System.out.println(countAllPrimes());
@@ -328,22 +329,22 @@ void runTest(int numberOfTests) {
   System.out.print("Faktorisering sekvensielt: ");
   System.out.println((facSeq = runFacSeqTest(numberOfTests)) + "ms.");
   System.out.println();
-  System.out.print("Faktorisering parallelt: ");
-  System.out.println((facPara = runFacParTest(numberOfTests)) + "ms.");
+  //System.out.print("Faktorisering parallelt: ");
+  //System.out.println((facPara = runFacParTest(numberOfTests)) + "ms.");
 
   s = "Tider brukt: " + nl;
   s += "Sekvensiell Erast. sil: " + eraSeq + nl;
-  //s += "Parallell Erast. sil: " + eraPara + nl;
+  s += "Parallell Erast. sil: " + eraPara + nl;
   s += "Sekvensiell faktorisering: " + facSeq + nl;
-  s += "Parallell faktoriserign: " + facPara + nl;
+  //s += "Parallell faktoriserign: " + facPara + nl;
   s += "Med N på " + maxNum + nl;
   s += "og faktoriserer " + (long) maxNum * maxNum + nl;
-  //s += "Speedup for parallellisert Erastosthenes sil: " + nl;
-  //s += eraSeq / eraPara + nl;
+  s += "Speedup for parallellisert Erastosthenes sil: " + nl;
+  s += eraSeq / eraPara + nl;
   s += "Speedup for parallellisert faktorisering: " + nl;
-  s += facSeq / facPara + nl;
+  //s += facSeq / facPara + nl;
   s += "Snitt tid sekvensiell faktorisering: " + nl + (facSeq / 100) + nl;
-  s += "Snitt tid parallell faktorisering: " + nl +  (facPara / 100) +nl;
+  //s += "Snitt tid parallell faktorisering: " + nl +  (facPara / 100) +nl;
   System.out.println(s);
 }
 
@@ -354,7 +355,7 @@ void runTest(int numberOfTests) {
  * Runs the seq Era tests.
  */
 double runEraSeqTest(int n) {
-  boolean debug = true;
+  boolean debug = false;
   long time, starttime;
   long [] times = new long [n];
   for (int i = 0; i < numberOfTests; i++)
@@ -706,7 +707,7 @@ ArrayList<Long> factorize (long num) {
   ArrayList <Long> fac = new ArrayList <Long>();
   int n = 2;
   long facNum = num;
-  while (n < Math.sqrt(num) && facNum != 1) {
+  while (n < Math.sqrt(facNum) && facNum != 1) {
     //if (debug) System.out.println("N is now: " + n);
     if (n == -1) {
       //if (debug) System.out.println("Breaking; Adding facNum now: " + facNum);
